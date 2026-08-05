@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "RP_Telco_Churn_stored"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "b78cf57a-4dfa-4bcd-bcc9-fb8378893171"
+  }
+}

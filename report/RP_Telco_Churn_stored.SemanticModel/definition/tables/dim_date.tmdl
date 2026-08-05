@@ -1,0 +1,166 @@
+table dim_date
+	lineageTag: 1476c79d-2c29-4f67-8c03-1166fe74fec7
+	dataCategory: Time
+
+	column sk_date
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 88077091-89f1-4c61-a99d-2fb1649db8b6
+		summarizeBy: sum
+		sourceColumn: sk_date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column bk_date
+		dataType: string
+		isHidden
+		lineageTag: cc82246d-1de9-446a-a2c3-4ec374b678e5
+		summarizeBy: none
+		sourceColumn: bk_date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: Long Date
+		lineageTag: 131bb997-240a-4b50-ba8a-7bbdb2d101ea
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Day of Month'
+		dataType: int64
+		formatString: 0
+		lineageTag: e9d5de5f-9650-4002-a6e7-bc7eb034ac36
+		summarizeBy: sum
+		sourceColumn: Day of Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month_num
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e1498c5f-6071-4013-ae02-e61002dde1a6
+		summarizeBy: sum
+		sourceColumn: Month_num
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: string
+		lineageTag: 48ff7ffc-f0d4-469f-8d6f-42e0680e4430
+		summarizeBy: none
+		sourceColumn: Month
+		sortByColumn: Month_num
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter_num
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 57a38bb5-da11-43a5-9370-3c34f94d0f91
+		summarizeBy: sum
+		sourceColumn: Quarter_num
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: 34f16921-739d-43ac-8a28-929d02022506
+		summarizeBy: none
+		sourceColumn: Quarter
+		sortByColumn: Quarter_num
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 69fdada7-7ffe-4b00-b8e0-55776306e7e9
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Weekday_num
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 03a9b23d-8748-49d8-8dea-f6df9009fc3f
+		summarizeBy: sum
+		sourceColumn: Weekday_num
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Weekday
+		dataType: string
+		lineageTag: 9483bfc0-45f8-4ae0-a1d4-4e2d79170f7d
+		summarizeBy: none
+		sourceColumn: Weekday
+		sortByColumn: Weekday_num
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Weekend
+		dataType: string
+		lineageTag: 940eadc8-9272-4c55-8bdf-4b020df46fd1
+		summarizeBy: none
+		sourceColumn: Weekend
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Year Hierarchy'
+		lineageTag: 71367b59-8aee-40e5-acaf-dfddbb5ecfb5
+
+		level Year
+			lineageTag: 19f76f0e-0e06-4a39-94e9-19607ee452e7
+			column: Year
+
+		level Quarter
+			lineageTag: ba2338ea-60cf-408d-b228-90defdea1a63
+			column: Quarter
+
+		level Month
+			lineageTag: 49a5561a-0d66-4768-8d35-7bcde4dfeb22
+			column: Month
+
+		level 'Day of Month'
+			lineageTag: 0d9f7952-83c4-4e81-97a6-12d3114b54f1
+			column: 'Day of Month'
+
+	partition dim_date = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com"),
+				    DW_Telco_Data_Warehouse = Source{[Name="DW_Telco_Data_Warehouse"]}[Data],
+				    dbo_dim_date = DW_Telco_Data_Warehouse{[Schema="dbo",Item="dim_date"]}[Data],
+				    #"Renamed Columns" = Table.RenameColumns(dbo_dim_date,{{"DayofMonth", "Day of Month"}, {"Weekday_txt", "Weekday"}, {"Quarter_txt", "Quarter"}, {"Month_txt", "Month"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+

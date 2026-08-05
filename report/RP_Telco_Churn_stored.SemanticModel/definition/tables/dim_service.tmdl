@@ -1,0 +1,55 @@
+table dim_service
+	lineageTag: 515bc9d8-d9aa-4721-8a83-fe64adaa4435
+
+	column sk_service
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1d545eeb-a6e7-422b-8557-130eef3001e6
+		summarizeBy: sum
+		sourceColumn: sk_service
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column bk_service
+		dataType: string
+		isHidden
+		lineageTag: 0d02049f-b021-47fa-bcb7-594fd983712a
+		summarizeBy: none
+		sourceColumn: bk_service
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Internet Service'
+		dataType: string
+		lineageTag: 2fbe9d11-5962-4b6c-8606-1f555c800f43
+		summarizeBy: none
+		sourceColumn: Internet Service
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Internet Type'
+		dataType: string
+		lineageTag: bb7ce492-15a4-4732-9a30-8f7be392f78c
+		summarizeBy: none
+		sourceColumn: Internet Type
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_service = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com"),
+				    DW_Telco_Data_Warehouse = Source{[Name="DW_Telco_Data_Warehouse"]}[Data],
+				    dbo_dim_service = DW_Telco_Data_Warehouse{[Schema="dbo",Item="dim_service"]}[Data],
+				    #"Renamed Columns" = Table.RenameColumns(dbo_dim_service,{{"InternetService", "Internet Service"}, {"InternetType", "Internet Type"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+

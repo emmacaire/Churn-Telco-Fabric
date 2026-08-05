@@ -1,0 +1,220 @@
+table fact_customer_transactions
+	lineageTag: 7c2ec121-4865-4f2b-980e-238d70cab800
+
+	measure 'Total Transactions' = COUNTROWS('fact_customer_transactions')
+		formatString: 0
+		lineageTag: 687bc04d-9a5a-460e-992c-d1d396cf8d7c
+
+	measure 'Average Age' = AVERAGE('dim_customer'[Age])
+		lineageTag: 7559a430-f70e-4ba3-90ce-18bbcc2022a5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Charge' = AVERAGE('fact_customer_transactions'[Monthly Charge])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 1e43447a-0d60-4bc1-b8d4-3d96ddbb8245
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Average CLTV' = AVERAGE(dim_customer[CLTV])
+		formatString: 0.0
+		lineageTag: 86a380cf-a9ea-458d-b76b-c77bb09824af
+
+	measure 'Average Tenure' = AVERAGE(fact_customer_transactions[Tenure Months])
+		formatString: 0.0
+		lineageTag: e29143db-d372-4b36-aa06-c75fdfe28521
+
+	measure 'Avg Age Churned' = CALCULATE([Average Age],fact_customer_transactions[Status]="Churned")
+		formatString: 0.0
+		lineageTag: c15f0ef6-4bcc-47fc-a280-12f8fb97671a
+
+	measure 'Avg Age Joined' = CALCULATE([Average Age],'fact_customer_transactions'[Status]="Joined")
+		formatString: 0.0
+		lineageTag: 096e96a6-14e1-4b35-8acf-ae1153deaab0
+
+	measure 'Avg Charge Churned' = CALCULATE([Average Charge],'fact_customer_transactions'[Status]="Churned")
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 0623e11f-4e29-4b39-9b55-2519d406d086
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Avg Charge Joined' = CALCULATE([Average Charge],'fact_customer_transactions'[Status]="Joined")
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: a177c696-9c12-49ed-82f7-8fa8b42deb8e
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Avg CLTV Churned' = CALCULATE([Average CLTV], fact_customer_transactions[Status]="Churned")
+		lineageTag: cee5589d-9a4b-4e60-8277-5197ecc7e1a2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg CLTV Joined' = CALCULATE([Average CLTV], fact_customer_transactions[Status]="Joined")
+		lineageTag: e154ff38-801e-4e17-b13e-862a822601ef
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Tenure Churned' = CALCULATE([Average Tenure],fact_customer_transactions[Status]="Churned")
+		formatString: 0.0
+		lineageTag: 5b2c2d39-4996-48c3-bd88-d1e3712f26b2
+
+	measure 'Avg Tenure Joined' = CALCULATE([Average Tenure],fact_customer_transactions[Status]="Joined")
+		formatString: 0.0
+		lineageTag: 2e390f6d-435a-44af-8583-c6448247ef3e
+
+	measure 'Churn Transactions' = CALCULATE(COUNTROWS(fact_customer_transactions),fact_customer_transactions[Status]="Churned")
+		formatString: 0
+		lineageTag: 35fc60f7-a1e7-4be2-804c-eb3906345971
+
+	measure 'Joined Revenue' = [Avg Charge Joined]*[Joined Transactions]
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 39b37339-ae64-4474-ac27-a176a5743154
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Joined Rate' = DIVIDE([Joined Transactions],[Total Transactions],0)
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		lineageTag: 08494591-9e0a-4be6-b479-d6650a4db979
+
+	measure 'MoM Growth %' = ```
+			
+			VAR CurrentMonth = [Total Transactions]
+			VAR PrevMonth = 
+			    CALCULATE(
+			        [Total Transactions], 
+			        PREVIOUSMONTH(dim_date[Date])
+			    )
+			RETURN
+			    DIVIDE(
+			        CurrentMonth - PrevMonth, 
+			        PrevMonth, 
+			        0
+			    )
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 50b31cd4-4192-4aad-8304-579f55783085
+
+	measure 'Total Revenue' = [Average Charge]*[Total Transactions]
+		lineageTag: 9e1bba02-8fe4-48a1-b2c3-fd0bb8c43084
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Joined Transactions' = CALCULATE(COUNTROWS(fact_customer_transactions),fact_customer_transactions[Status]="Joined")
+		formatString: 0
+		lineageTag: cb33c329-dbc1-47ac-bd36-1b51dd673339
+
+	measure 'Churn Losses' = [Avg Charge Churned]*[Churn Transactions]*(-1)
+		formatString: $#,##0;-$#,##0;$0
+		lineageTag: 80392165-0f44-4fab-a5fe-0bdaf0f58ee6
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	measure 'Churn Rate' = DIVIDE ([Churn Transactions],[Total Transactions],0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 6d33eb8a-736b-496c-bd24-5256f474ee8c
+
+	measure 'Filtered Data Label' =
+			
+			VAR CurrentVal = [MoM Growth %]
+			RETURN
+			    IF(
+			        CurrentVal > 0.05 || CurrentVal < -0.05,
+			        CurrentVal,
+			        BLANK()
+			    )
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: b4bcdeb0-359f-4c02-a4ad-6e37e1085e42
+
+	measure '% Churned Losses' = DIVIDE([Churn Losses],[Total Revenue],0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 2ac5869d-160e-4b42-9ad1-bbf711dca2ff
+
+	measure '% CLTV Churned' = DIVIDE([Avg CLTV Churned]-[Average CLTV],[Average CLTV],0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 2c5e35b7-844d-42be-a53f-f8a0c5ddfee2
+
+	measure '% CLTV Joined' = DIVIDE([Avg CLTV Joined]-[Average CLTV],[Average CLTV],0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 910edd2e-6ab9-4439-8ab6-e22d733da7ff
+
+	measure '% Joined Revenue' = DIVIDE([Joined Revenue],[Total Revenue],0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 3c2ee6c9-ee35-4035-b1a5-6cdd059da6b6
+
+	column fk_date
+		dataType: string
+		isHidden
+		lineageTag: 1af6a6da-cfb7-40d2-877d-f715e8b0a9a2
+		summarizeBy: none
+		sourceColumn: fk_date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column fk_customer
+		dataType: string
+		isHidden
+		lineageTag: f8bc66fc-f1c1-4fc2-98ff-a6cbf6a803f2
+		summarizeBy: none
+		sourceColumn: fk_customer
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Monthly Charge'
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: dead1300-612b-47af-836f-f0603a01b4e5
+		summarizeBy: sum
+		sourceColumn: Monthly Charge
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tenure Months'
+		dataType: int64
+		formatString: 0
+		lineageTag: 59a072e1-db7f-4a42-b9af-3f7741e4537f
+		summarizeBy: sum
+		sourceColumn: Tenure Months
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: b34aa7db-fa70-4773-9fcb-e2dc2c94b323
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Churn Category'
+		dataType: string
+		lineageTag: 37570b8b-25b8-49fe-b4d6-c70e1febe579
+		summarizeBy: none
+		sourceColumn: Churn Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Churn Reason'
+		dataType: string
+		lineageTag: e55679e1-20dd-44c8-b13a-a4e636dc79e4
+		summarizeBy: none
+		sourceColumn: Churn Reason
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_customer_transactions = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com"),
+				    DW_Telco_Data_Warehouse = Source{[Name="DW_Telco_Data_Warehouse"]}[Data],
+				    dbo_fact_customer_transactions = DW_Telco_Data_Warehouse{[Schema="dbo",Item="fact_customer_transactions"]}[Data],
+				    #"Renamed Columns" = Table.RenameColumns(dbo_fact_customer_transactions,{{"ChurnCategory", "Churn Category"}, {"ChurnReason", "Churn Reason"}, {"MonthlyCharge", "Monthly Charge"}, {"TenureMonths", "Tenure Months"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+

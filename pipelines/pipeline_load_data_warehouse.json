@@ -1,0 +1,1321 @@
+{
+    "name": "PL Telco load data warehouse",
+    "objectId": "5510d80c-81df-4755-984e-805ef3b014f6",
+    "properties": {
+        "activities": [
+            {
+                "name": "Clear Fact Table",
+                "type": "Script",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "connectionSettings": {
+                    "name": "DW_Telco_Data_Warehouse",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "541e6505-39f3-4720-8da2-027821d62a39",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "Query",
+                            "text": {
+                                "value": "TRUNCATE TABLE fact_customer_transactions",
+                                "type": "Expression"
+                            }
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "Wait clearing Fact table",
+                "type": "Wait",
+                "dependsOn": [
+                    {
+                        "activity": "Clear Fact Table",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "typeProperties": {
+                    "waitTimeInSeconds": 1
+                }
+            },
+            {
+                "name": "Clear Dim tables",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "Wait clearing Fact table",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "connectionSettings": {
+                    "name": "DW_Telco_Data_Warehouse",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "541e6505-39f3-4720-8da2-027821d62a39",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "Query",
+                            "text": {
+                                "value": "TRUNCATE TABLE dim_customer\nTRUNCATE TABLE dim_service;\nTRUNCATE TABLE dim_location;\nTRUNCATE TABLE dim_date;",
+                                "type": "Expression"
+                            }
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "Wait clearing Fact table_copy1",
+                "type": "Wait",
+                "dependsOn": [
+                    {
+                        "activity": "Clear Dim tables",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "typeProperties": {
+                    "waitTimeInSeconds": 1
+                }
+            },
+            {
+                "name": "Wait loading Dim tables",
+                "type": "Wait",
+                "dependsOn": [
+                    {
+                        "activity": "Load DW dim service",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "Load DW dim location",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "Load DW dim customer",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "Load DW dim date",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "typeProperties": {
+                    "waitTimeInSeconds": 1
+                }
+            },
+            {
+                "name": "Load DW dim service",
+                "type": "Copy",
+                "dependsOn": [
+                    {
+                        "activity": "Wait clearing Fact table_copy1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "DataWarehouseSource",
+                        "sqlReaderQuery": "Select row_number() OVER (ORDER BY bk_service ASC) AS sk_service, *\r\nFrom STG_Telco_Silver_Layer.dbo.stg_dim_service",
+                        "queryTimeout": "02:00:00",
+                        "partitionOption": "None",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "STG_Telco_Silver_Layer",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": []
+                        }
+                    },
+                    "sink": {
+                        "type": "DataWarehouseSink",
+                        "allowCopyCommand": true,
+                        "writeBehavior": "Insert",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "DW_Telco_Data_Warehouse",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "541e6505-39f3-4720-8da2-027821d62a39",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": [],
+                            "typeProperties": {
+                                "schema": "dbo",
+                                "table": "dim_service"
+                            }
+                        }
+                    },
+                    "enableStaging": true,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "mappings": [
+                            {
+                                "source": {
+                                    "name": "sk_service",
+                                    "type": "Int64",
+                                    "physicalType": "bigint"
+                                },
+                                "sink": {
+                                    "name": "sk_service",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "bk_service",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "64"
+                                },
+                                "sink": {
+                                    "name": "bk_service",
+                                    "physicalType": "varchar",
+                                    "length": "64"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "InternetService",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "InternetService",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "InternetType",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "InternetType",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            }
+                        ],
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                }
+            },
+            {
+                "name": "Load DW dim location",
+                "type": "Copy",
+                "dependsOn": [
+                    {
+                        "activity": "Wait clearing Fact table_copy1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "DataWarehouseSource",
+                        "sqlReaderQuery": "Select row_number() OVER (ORDER BY bk_location ASC) AS sk_location, *\r\nFrom STG_Telco_Silver_Layer.dbo.stg_dim_location",
+                        "queryTimeout": "02:00:00",
+                        "partitionOption": "None",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "STG_Telco_Silver_Layer",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": []
+                        }
+                    },
+                    "sink": {
+                        "type": "DataWarehouseSink",
+                        "allowCopyCommand": true,
+                        "writeBehavior": "Insert",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "DW_Telco_Data_Warehouse",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "541e6505-39f3-4720-8da2-027821d62a39",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": [],
+                            "typeProperties": {
+                                "schema": "dbo",
+                                "table": "dim_location"
+                            }
+                        }
+                    },
+                    "enableStaging": true,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "mappings": [
+                            {
+                                "source": {
+                                    "name": "sk_location",
+                                    "type": "Int64",
+                                    "physicalType": "bigint"
+                                },
+                                "sink": {
+                                    "name": "sk_location",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "bk_location",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "64"
+                                },
+                                "sink": {
+                                    "name": "bk_location",
+                                    "physicalType": "varchar",
+                                    "length": "64"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "City",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "100"
+                                },
+                                "sink": {
+                                    "name": "City",
+                                    "physicalType": "varchar",
+                                    "length": "100"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "ZipCode",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "20"
+                                },
+                                "sink": {
+                                    "name": "ZipCode",
+                                    "physicalType": "varchar",
+                                    "length": "20"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Latitude",
+                                    "type": "Decimal",
+                                    "physicalType": "decimal",
+                                    "scale": 6,
+                                    "precision": 9
+                                },
+                                "sink": {
+                                    "name": "Latitude",
+                                    "physicalType": "decimal",
+                                    "scale": 6,
+                                    "precision": 9
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Longitude",
+                                    "type": "Decimal",
+                                    "physicalType": "decimal",
+                                    "scale": 6,
+                                    "precision": 9
+                                },
+                                "sink": {
+                                    "name": "Longitude",
+                                    "physicalType": "decimal",
+                                    "scale": 6,
+                                    "precision": 9
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Population",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "Population",
+                                    "physicalType": "int"
+                                }
+                            }
+                        ],
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                }
+            },
+            {
+                "name": "Load DW dim customer",
+                "type": "Copy",
+                "dependsOn": [
+                    {
+                        "activity": "Wait clearing Fact table_copy1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "DataWarehouseSource",
+                        "sqlReaderQuery": "SELECT \r\n    /* 1. GENERATE THE NEW SURROGATE KEY */\r\n    ROW_NUMBER() OVER (ORDER BY stg_dim_customer.bk_customer ASC) AS sk_customer,\r\n\r\n    /* 2. Retrieve the NEW snowflake foreign keys from the final DW tables */\r\n    dim_service.sk_service AS NEW_fk_service,\r\n    dim_location.sk_location AS NEW_fk_location,\r\n    \r\n    /* 3. Pull actual attributes required to be loaded into the DW */\r\n    stg_dim_customer.bk_customer,\r\n    stg_dim_customer.Gender,\r\n    stg_dim_customer.Age,\r\n    stg_dim_customer.Married,\r\n    stg_dim_customer.Under30,\r\n    stg_dim_customer.SeniorCitizen,\r\n    stg_dim_customer.Dependents,\r\n    stg_dim_customer.NumberofDependents,\r\n    stg_dim_customer.CLTV,\r\n    stg_dim_customer.Offer,\r\n    stg_dim_customer.PaymentMethod,\r\n    stg_dim_customer.PaperlessBilling,\r\n    stg_dim_customer.Contract,\r\n    stg_dim_customer.ReferredaFriend,\r\n    stg_dim_customer.NumberofReferrals,\r\n    stg_dim_customer.PhoneService,\r\n    stg_dim_customer.MultipleLines,\r\n    stg_dim_customer.OnlineSecurity,\r\n    stg_dim_customer.OnlineBackup,\r\n    stg_dim_customer.DeviceProtectionPlan,\r\n    stg_dim_customer.PremiumTechSupport,\r\n    stg_dim_customer.StreamingTV,\r\n    stg_dim_customer.StreamingMovies,\r\n    stg_dim_customer.StreamingMusic,\r\n    stg_dim_customer.UnlimitedData,\r\n    stg_dim_customer.fk_service,\r\n    stg_dim_customer.fk_location\r\n\r\nFROM STG_Telco_Silver_Layer.dbo.stg_dim_customer\r\n/* Changed to LEFT JOIN so empty dimension tables don't wipe out your staging data */\r\nLEFT JOIN DW_Telco_Data_Warehouse.dbo.dim_service\r\n    ON stg_dim_customer.fk_service = dim_service.bk_service\r\nLEFT JOIN DW_Telco_Data_Warehouse.dbo.dim_location\r\n    ON stg_dim_customer.fk_location = dim_location.bk_location;",
+                        "queryTimeout": "02:00:00",
+                        "partitionOption": "None",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "STG_Telco_Silver_Layer",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": []
+                        }
+                    },
+                    "sink": {
+                        "type": "DataWarehouseSink",
+                        "allowCopyCommand": true,
+                        "writeBehavior": "Insert",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "DW_Telco_Data_Warehouse",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "541e6505-39f3-4720-8da2-027821d62a39",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": [],
+                            "typeProperties": {
+                                "schema": "dbo",
+                                "table": "dim_customer"
+                            }
+                        }
+                    },
+                    "enableStaging": true,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "mappings": [
+                            {
+                                "source": {
+                                    "name": "sk_customer",
+                                    "type": "Int64",
+                                    "physicalType": "bigint"
+                                },
+                                "sink": {
+                                    "name": "sk_customer",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "fk_location",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "fk_location",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "fk_service",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "fk_service",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "bk_customer",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "bk_customer",
+                                    "physicalType": "varchar",
+                                    "length": "64"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Gender",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "20"
+                                },
+                                "sink": {
+                                    "name": "Gender",
+                                    "physicalType": "varchar",
+                                    "length": "20"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Age",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "Age",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Married",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "Married",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Under30",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "Under30",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "SeniorCitizen",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "SeniorCitizen",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Dependents",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "Dependents",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "NumberofDependents",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "NumberofDependents",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "CLTV",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "CLTV",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Offer",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "15"
+                                },
+                                "sink": {
+                                    "name": "Offer",
+                                    "physicalType": "varchar",
+                                    "length": "15"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "PaymentMethod",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "PaymentMethod",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "PaperlessBilling",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "PaperlessBilling",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Contract",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "Contract",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "ReferredaFriend",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "ReferredaFriend",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "NumberofReferrals",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "NumberofReferrals",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "PhoneService",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "PhoneService",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "MultipleLines",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "MultipleLines",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "OnlineSecurity",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "OnlineSecurity",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "OnlineBackup",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "OnlineBackup",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "DeviceProtectionPlan",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "DeviceProtectionPlan",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "PremiumTechSupport",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "PremiumTechSupport",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "StreamingTV",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "StreamingTV",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "StreamingMovies",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "StreamingMovies",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "StreamingMusic",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "StreamingMusic",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "UnlimitedData",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "UnlimitedData",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            }
+                        ],
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                }
+            },
+            {
+                "name": "Load DW dim date",
+                "type": "Copy",
+                "dependsOn": [
+                    {
+                        "activity": "Wait clearing Fact table_copy1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "DataWarehouseSource",
+                        "sqlReaderQuery": "Select row_number() OVER (ORDER BY bk_date ASC) AS sk_date, *\r\nFrom STG_Telco_Silver_Layer.dbo.stg_dim_date",
+                        "queryTimeout": "02:00:00",
+                        "partitionOption": "None",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "STG_Telco_Silver_Layer",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": []
+                        }
+                    },
+                    "sink": {
+                        "type": "DataWarehouseSink",
+                        "allowCopyCommand": true,
+                        "writeBehavior": "Insert",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "DW_Telco_Data_Warehouse",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "541e6505-39f3-4720-8da2-027821d62a39",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": [],
+                            "typeProperties": {
+                                "schema": "dbo",
+                                "table": "dim_date"
+                            }
+                        }
+                    },
+                    "enableStaging": true,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "mappings": [
+                            {
+                                "source": {
+                                    "name": "sk_date",
+                                    "type": "Int64",
+                                    "physicalType": "bigint"
+                                },
+                                "sink": {
+                                    "name": "sk_date",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "bk_date",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "bk_date",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Date",
+                                    "type": "Date",
+                                    "physicalType": "date"
+                                },
+                                "sink": {
+                                    "name": "Date",
+                                    "physicalType": "date"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "DayofMonth",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "DayofMonth",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Month_num",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "Month_num",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Month_txt",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "Month_txt",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Quarter_num",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "Quarter_num",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Quarter_txt",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                },
+                                "sink": {
+                                    "name": "Quarter_txt",
+                                    "physicalType": "varchar",
+                                    "length": "10"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Year",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "Year",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Weekday_num",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "Weekday_num",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Weekday_txt",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "Weekday_txt",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Weekend",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "Weekend",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            }
+                        ],
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                }
+            },
+            {
+                "name": "Load DW Fact customer transactions",
+                "type": "Copy",
+                "dependsOn": [
+                    {
+                        "activity": "Wait loading Dim tables",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "DataWarehouseSource",
+                        "sqlReaderQuery": "SELECT \r\n    /* \"old\" foreign keys from Staging Area (values of the business keys) */\r\n    stg_fact_customer_transactions.fk_date,\r\n    stg_fact_customer_transactions.fk_customer,\r\n    \r\n    /* the NEW foreign keys, retrieved from the values of the SK in the DW */\r\n    dim_date.sk_date as NEW_fk_date,\r\n    dim_customer.sk_customer as NEW_fk_customer,\r\n    \r\n    /* actual measures, required to be loaded into the DW */\r\n    stg_fact_customer_transactions.MonthlyCharge,\r\n    stg_fact_customer_transactions.TenureMonths,\r\n    stg_fact_customer_transactions.Status,\r\n    stg_fact_customer_transactions.ChurnCategory,\r\n    stg_fact_customer_transactions.ChurnReason\r\n\r\nFROM STG_Telco_Silver_Layer.dbo.stg_fact_customer_transactions\r\nLEFT JOIN DW_Telco_Data_Warehouse.dbo.dim_date ON stg_fact_customer_transactions.fk_date = dim_date.bk_date\r\nLEFT JOIN DW_Telco_Data_Warehouse.dbo.dim_customer ON stg_fact_customer_transactions.fk_customer = dim_customer.bk_customer",
+                        "queryTimeout": "02:00:00",
+                        "partitionOption": "None",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "STG_Telco_Silver_Layer",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": []
+                        }
+                    },
+                    "sink": {
+                        "type": "DataWarehouseSink",
+                        "allowCopyCommand": true,
+                        "writeBehavior": "Insert",
+                        "datasetSettings": {
+                            "annotations": [],
+                            "connectionSettings": {
+                                "name": "DW_Telco_Data_Warehouse",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "DataWarehouse",
+                                    "typeProperties": {
+                                        "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                                        "artifactId": "541e6505-39f3-4720-8da2-027821d62a39",
+                                        "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                                    },
+                                    "externalReferences": {
+                                        "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                                    }
+                                }
+                            },
+                            "type": "DataWarehouseTable",
+                            "schema": [],
+                            "typeProperties": {
+                                "schema": "dbo",
+                                "table": "fact_customer_transactions"
+                            }
+                        }
+                    },
+                    "enableStaging": true,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "mappings": [
+                            {
+                                "source": {
+                                    "name": "fk_date",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "64"
+                                },
+                                "sink": {
+                                    "name": "fk_date",
+                                    "physicalType": "varchar",
+                                    "length": "64"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "fk_customer",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "64"
+                                },
+                                "sink": {
+                                    "name": "fk_customer",
+                                    "physicalType": "varchar",
+                                    "length": "64"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "MonthlyCharge",
+                                    "type": "Decimal",
+                                    "physicalType": "decimal",
+                                    "scale": 2,
+                                    "precision": 18
+                                },
+                                "sink": {
+                                    "name": "MonthlyCharge",
+                                    "physicalType": "decimal",
+                                    "scale": 2,
+                                    "precision": 18
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "TenureMonths",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                },
+                                "sink": {
+                                    "name": "TenureMonths",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "Status",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "Status",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "ChurnCategory",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                },
+                                "sink": {
+                                    "name": "ChurnCategory",
+                                    "physicalType": "varchar",
+                                    "length": "50"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "ChurnReason",
+                                    "type": "String",
+                                    "physicalType": "varchar",
+                                    "length": "150"
+                                },
+                                "sink": {
+                                    "name": "ChurnReason",
+                                    "physicalType": "varchar",
+                                    "length": "150"
+                                }
+                            }
+                        ],
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                }
+            }
+        ],
+        "lastModifiedByObjectId": "a2fc504d-eed9-4296-a900-c2d16d3cfa10",
+        "lastPublishTime": "2026-07-29T16:26:10Z"
+    }
+}

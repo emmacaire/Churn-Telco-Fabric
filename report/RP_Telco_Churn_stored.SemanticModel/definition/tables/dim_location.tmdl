@@ -1,0 +1,84 @@
+table dim_location
+	lineageTag: 60b5d3ac-b57f-406f-8e8c-8bdd61bd7e7b
+
+	column sk_location
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3ec63c26-db1e-4893-83e2-287c97168f3c
+		summarizeBy: none
+		sourceColumn: sk_location
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column bk_location
+		dataType: string
+		isHidden
+		lineageTag: 0c690803-f0b0-47ae-aebc-913443303189
+		summarizeBy: none
+		sourceColumn: bk_location
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: cbfefea2-4a41-4ac9-8b2b-2ac905fbba58
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Zip Code'
+		dataType: string
+		lineageTag: 39be0b6b-b20c-4ddc-a866-0e69a0b4c497
+		summarizeBy: none
+		sourceColumn: Zip Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column Latitude
+		dataType: double
+		lineageTag: 5c227c20-3d6c-43e5-97cf-88fe79731fb1
+		summarizeBy: none
+		sourceColumn: Latitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Longitude
+		dataType: double
+		lineageTag: 90df73f8-229c-4952-a3d5-5a9eab270c95
+		summarizeBy: none
+		sourceColumn: Longitude
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Population
+		dataType: int64
+		formatString: 0
+		lineageTag: 647bd737-b972-47b4-8459-f5d5951a245f
+		summarizeBy: none
+		sourceColumn: Population
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_location = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com"),
+				    DW_Telco_Data_Warehouse = Source{[Name="DW_Telco_Data_Warehouse"]}[Data],
+				    dbo_dim_location = DW_Telco_Data_Warehouse{[Schema="dbo",Item="dim_location"]}[Data],
+				    #"Renamed Columns" = Table.RenameColumns(dbo_dim_location,{{"ZipCode", "Zip Code"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+

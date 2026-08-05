@@ -1,0 +1,117 @@
+> Dataflow Create Dimension Date (staging area)
+
+let
+    StartDate = #date(2025, 1, 1),
+    EndDate = #date(2025, 12, 31),
+    
+    DayCount = Duration.Days(EndDate - StartDate) + 1,
+    
+    DateList = List.Dates(StartDate, DayCount, #duration(1, 0, 0, 0)),
+    
+    #"Converted to Table" = Table.FromList(DateList, Splitter.SplitByNothing(), {"Date"}, null, ExtraValues.Error),
+    #"Changed Type" = Table.TransformColumnTypes(#"Converted to Table", {{"Date", type date}}),
+    
+    #"Added Year" = Table.AddColumn(#"Changed Type", "Year", each Date.Year([Date]), Int64.Type),
+    #"Added Month No" = Table.AddColumn(#"Added Year", "Month_num", each Date.Month([Date]), Int64.Type),
+    #"Added Month Name" = Table.AddColumn(#"Added Month No", "Month_txt", each Date.MonthName([Date]), type text),
+    #"Added Day" = Table.AddColumn(#"Added Month Name", "DayofMonth", each Date.Day([Date]), Int64.Type),
+    #"Added Day Name" = Table.AddColumn(#"Added Day", "Weekday_txt", each Date.DayOfWeekName([Date]), type text),
+    #"Added Quarter" = Table.AddColumn(#"Added Day Name", "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])), type text),
+  #"Added custom" = Table.TransformColumnTypes(Table.AddColumn(#"Added Quarter", "DateKey", each Date.ToText([Date], "ddMMyyyy")), {{"DateKey", type text}}),
+  #"Duplicated column" = Table.DuplicateColumn(#"Added custom", "Date", "Date - Copy"),
+  #"Inserted day of week" = Table.AddColumn(
+    #"Duplicated column", 
+    "Day of week", 
+    each if Date.DayOfWeek([#"Date - Copy"]) = 0 
+         then 7 
+         else Date.DayOfWeek([#"Date - Copy"]), 
+    type nullable number
+),
+  #"Renamed columns" = Table.RenameColumns(#"Inserted day of week", {{"Day of week", "Weekday_num"}}),
+  #"Inserted conditional column" = Table.AddColumn(#"Renamed columns", "Weekend", each if [Weekday_num] >= 6 then "Yes" else if [Weekday_num] < 6 then "No" else null),
+  #"Changed column type" = Table.TransformColumnTypes(#"Inserted conditional column", {{"Weekend", type text}}),
+  #"Removed columns" = Table.RemoveColumns(#"Changed column type", {"Date - Copy"}),
+  #"Changed column type 1" = Table.TransformColumnTypes(#"Removed columns", {{"Weekday_num", Int64.Type}}),
+  #"Renamed columns 1" = Table.RenameColumns(#"Changed column type 1", {{"Quarter", "Quarter_txt"}}),
+  #"Duplicated column 1" = Table.DuplicateColumn(#"Renamed columns 1", "Quarter_txt", "Quarter_txt - Copy"),
+  #"Replaced value" = Table.ReplaceValue(#"Duplicated column 1", "Q", "", Replacer.ReplaceText, {"Quarter_txt - Copy"}),
+  #"Renamed columns 2" = Table.RenameColumns(#"Replaced value", {{"Quarter_txt - Copy", "Quarter_num"}}),
+  #"Changed column type 2" = Table.TransformColumnTypes(#"Renamed columns 2", {{"Quarter_num", Int64.Type}})
+in
+    #"Changed column type 2"
+
+> Dataflow Create Dimension Service (staging area)
+
+let
+  Source = Lakehouse.Contents(null),
+  Navigation = Source{[workspaceId = "4894a48c-af45-4d6d-b5e9-2fa103bcb511"]}[Data],
+  #"Navigation 1" = Navigation{[lakehouseId = "bfd483e7-50e2-4ea1-96f6-6ab0871bfdf4"]}[Data],
+  #"Navigation 2" = #"Navigation 1"{[Id = "Files", ItemKind = "Folder"]}[Data],
+  #"Navigation 3" = #"Navigation 2"{[Name = "TelcoCustomerChurn.csv"]}[Content],
+  #"Imported CSV" = Csv.Document(#"Navigation 3", [Delimiter = ",", Columns = 50, QuoteStyle = QuoteStyle.None]),
+  #"Promoted headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars = true]),
+  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"CustomerID", type text}, {"Gender", type text}, {"Age", Int64.Type}, {"Under30", type text}, {"SeniorCitizen", type text}, {"Married", type text}, {"Dependents", type text}, {"NumberofDependents", Int64.Type}, {"Country", type text}, {"State", type text}, {"City", type text}, {"ZipCode", Int64.Type}, {"Latitude", type number}, {"Longitude", type number}, {"Population", Int64.Type}, {"ReferredaFriend", type text}, {"Number_of_Referrals", Int64.Type}, {"TenureinMonths", Int64.Type}, {"Offer", type text}, {"PhoneService", type text}, {"AvgMonthlyLongDistanceCharges", type number}, {"MultipleLines", type text}, {"InternetService", type text}, {"InternetType", type text}, {"AvgMonthlyGBDownload", Int64.Type}, {"OnlineSecurity", type text}, {"OnlineBackup", type text}, {"DeviceProtectionPlan", type text}, {"PremiumTechSupport", type text}, {"StreamingTV", type text}, {"StreamingMovies", type text}, {"StreamingMusic", type text}, {"UnlimitedData", type text}, {"Contract", type text}, {"PaperlessBilling", type text}, {"PaymentMethod", type text}, {"MonthlyCharge", type number}, {"TotalCharges", type number}, {"TotalRefunds", type number}, {"TotalExtraDataCharges", Int64.Type}, {"TotalLongDistanceCharges", type number}, {"TotalRevenue", type number}, {"SatisfactionScore", Int64.Type}, {"CustomerStatus", type text}, {"ChurnLabel", type text}, {"ChurnScore", Int64.Type}, {"CLTV", Int64.Type}, {"ChurnCategory", type text}, {"ChurnReason", type text}, {"Date", type date}}),
+  #"Removed duplicates" = Table.Distinct(#"Changed column type", {"CustomerID"}),
+  #"Removed columns" = Table.RemoveColumns(#"Removed duplicates", {"State", "City", "ZipCode", "Country", "Population"}),
+  #"Inserted conditional column" = Table.AddColumn(#"Removed columns", "fk_service", each if [InternetType] = "No Internet" then "SE0004" else if [InternetType] = "Cable" then "SE0001" else if [InternetType] = "DSL" then "SE0002" else if [InternetType] = "Fiber Optic" then "SE0003" else null),
+  #"Replaced value" = Table.ReplaceValue(#"Inserted conditional column", null, "SE0004", Replacer.ReplaceValue, {"fk_service"}),
+  #"Changed column type 1" = Table.TransformColumnTypes(#"Replaced value", {{"fk_service", type text}}),
+  #"Added custom" = Table.TransformColumnTypes(Table.AddColumn(#"Changed column type 1", "fk_location", each Text.From([Latitude]) & Text.From([Longitude])), {{"fk_location", type text}}),
+  #"Replaced value 1" = Table.ReplaceValue(#"Added custom", "", "None", Replacer.ReplaceValue, {"Offer"})
+in
+  #"Replaced value 1"
+
+> Dataflow Create Dimension Location (staging area)
+
+let
+  Source = Lakehouse.Contents(null),
+  Navigation = Source{[workspaceId = "4894a48c-af45-4d6d-b5e9-2fa103bcb511"]}[Data],
+  #"Navigation 1" = Navigation{[lakehouseId = "bfd483e7-50e2-4ea1-96f6-6ab0871bfdf4"]}[Data],
+  #"Navigation 2" = #"Navigation 1"{[Id = "Files", ItemKind = "Folder"]}[Data],
+  #"Navigation 3" = #"Navigation 2"{[Name = "TelcoCustomerChurn.csv"]}[Content],
+  #"Imported CSV" = Csv.Document(#"Navigation 3", [Delimiter = ",", Columns = 50, QuoteStyle = QuoteStyle.None]),
+  #"Promoted headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars = true]),
+  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"CustomerID", type text}, {"Gender", type text}, {"Age", Int64.Type}, {"Under30", type text}, {"SeniorCitizen", type text}, {"Married", type text}, {"Dependents", type text}, {"NumberofDependents", Int64.Type}, {"Country", type text}, {"State", type text}, {"City", type text}, {"ZipCode", Int64.Type}, {"Latitude", type number}, {"Longitude", type number}, {"Population", Int64.Type}, {"ReferredaFriend", type text}, {"Number_of_Referrals", Int64.Type}, {"TenureinMonths", Int64.Type}, {"Offer", type text}, {"PhoneService", type text}, {"AvgMonthlyLongDistanceCharges", type number}, {"MultipleLines", type text}, {"InternetService", type text}, {"InternetType", type text}, {"AvgMonthlyGBDownload", Int64.Type}, {"OnlineSecurity", type text}, {"OnlineBackup", type text}, {"DeviceProtectionPlan", type text}, {"PremiumTechSupport", type text}, {"StreamingTV", type text}, {"StreamingMovies", type text}, {"StreamingMusic", type text}, {"UnlimitedData", type text}, {"Contract", type text}, {"PaperlessBilling", type text}, {"PaymentMethod", type text}, {"MonthlyCharge", type number}, {"TotalCharges", type number}, {"TotalRefunds", type number}, {"TotalExtraDataCharges", Int64.Type}, {"TotalLongDistanceCharges", type number}, {"TotalRevenue", type number}, {"SatisfactionScore", Int64.Type}, {"CustomerStatus", type text}, {"ChurnLabel", type text}, {"ChurnScore", Int64.Type}, {"CLTV", Int64.Type}, {"ChurnCategory", type text}, {"ChurnReason", type text}, {"Date", type date}}),
+  #"Removed other columns" = Table.SelectColumns(#"Changed column type", {"Country", "State", "City", "ZipCode", "Latitude", "Longitude", "Population"}),
+  #"Added custom" = Table.TransformColumnTypes(Table.AddColumn(#"Removed other columns", "LocationKey", each Text.From([Latitude]) & Text.From([Longitude])), {{"LocationKey", type text}}),
+  #"Changed column type 1" = Table.TransformColumnTypes(#"Added custom", {{"ZipCode", type text}}),
+  #"Removed duplicates" = Table.Distinct(#"Changed column type 1", {"LocationKey"})
+in
+  #"Removed duplicates"
+
+> Dataflow Create Dimension Customer (staging area)
+
+let
+  Source = Lakehouse.Contents(null),
+  Navigation = Source{[workspaceId = "4894a48c-af45-4d6d-b5e9-2fa103bcb511"]}[Data],
+  #"Navigation 1" = Navigation{[lakehouseId = "bfd483e7-50e2-4ea1-96f6-6ab0871bfdf4"]}[Data],
+  #"Navigation 2" = #"Navigation 1"{[Id = "Files", ItemKind = "Folder"]}[Data],
+  #"Navigation 3" = #"Navigation 2"{[Name = "TelcoCustomerChurn.csv"]}[Content],
+  #"Imported CSV" = Csv.Document(#"Navigation 3", [Delimiter = ",", Columns = 50, QuoteStyle = QuoteStyle.None]),
+  #"Promoted headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars = true]),
+  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"CustomerID", type text}, {"Gender", type text}, {"Age", Int64.Type}, {"Under30", type text}, {"SeniorCitizen", type text}, {"Married", type text}, {"Dependents", type text}, {"NumberofDependents", Int64.Type}, {"Country", type text}, {"State", type text}, {"City", type text}, {"ZipCode", Int64.Type}, {"Latitude", type number}, {"Longitude", type number}, {"Population", Int64.Type}, {"ReferredaFriend", type text}, {"Number_of_Referrals", Int64.Type}, {"TenureinMonths", Int64.Type}, {"Offer", type text}, {"PhoneService", type text}, {"AvgMonthlyLongDistanceCharges", type number}, {"MultipleLines", type text}, {"InternetService", type text}, {"InternetType", type text}, {"AvgMonthlyGBDownload", Int64.Type}, {"OnlineSecurity", type text}, {"OnlineBackup", type text}, {"DeviceProtectionPlan", type text}, {"PremiumTechSupport", type text}, {"StreamingTV", type text}, {"StreamingMovies", type text}, {"StreamingMusic", type text}, {"UnlimitedData", type text}, {"Contract", type text}, {"PaperlessBilling", type text}, {"PaymentMethod", type text}, {"MonthlyCharge", type number}, {"TotalCharges", type number}, {"TotalRefunds", type number}, {"TotalExtraDataCharges", Int64.Type}, {"TotalLongDistanceCharges", type number}, {"TotalRevenue", type number}, {"SatisfactionScore", Int64.Type}, {"CustomerStatus", type text}, {"ChurnLabel", type text}, {"ChurnScore", Int64.Type}, {"CLTV", Int64.Type}, {"ChurnCategory", type text}, {"ChurnReason", type text}, {"Date", type date}}),
+  #"Removed other columns" = Table.SelectColumns(#"Changed column type", {"Country", "State", "City", "ZipCode", "Latitude", "Longitude", "Population"}),
+  #"Added custom" = Table.TransformColumnTypes(Table.AddColumn(#"Removed other columns", "LocationKey", each Text.From([Latitude]) & Text.From([Longitude])), {{"LocationKey", type text}}),
+  #"Changed column type 1" = Table.TransformColumnTypes(#"Added custom", {{"ZipCode", type text}}),
+  #"Removed duplicates" = Table.Distinct(#"Changed column type 1", {"LocationKey"})
+in
+  #"Removed duplicates"
+
+> Dataflow Create Fact Customer Transactions (staging area)
+
+let
+  Source = Lakehouse.Contents(null),
+  Navigation = Source{[workspaceId = "4894a48c-af45-4d6d-b5e9-2fa103bcb511"]}[Data],
+  #"Navigation 1" = Navigation{[lakehouseId = "bfd483e7-50e2-4ea1-96f6-6ab0871bfdf4"]}[Data],
+  #"Navigation 2" = #"Navigation 1"{[Id = "Files", ItemKind = "Folder"]}[Data],
+  #"Navigation 3" = #"Navigation 2"{[Name = "TelcoCustomerChurn.csv"]}[Content],
+  #"Imported CSV" = Csv.Document(#"Navigation 3", [Delimiter = ",", Columns = 50, QuoteStyle = QuoteStyle.None]),
+  #"Promoted headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars = true]),
+  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"CustomerID", type text}, {"Gender", type text}, {"Age", Int64.Type}, {"Under30", type text}, {"SeniorCitizen", type text}, {"Married", type text}, {"Dependents", type text}, {"NumberofDependents", Int64.Type}, {"Country", type text}, {"State", type text}, {"City", type text}, {"ZipCode", Int64.Type}, {"Latitude", type number}, {"Longitude", type number}, {"Population", Int64.Type}, {"ReferredaFriend", type text}, {"Number_of_Referrals", Int64.Type}, {"TenureinMonths", Int64.Type}, {"Offer", type text}, {"PhoneService", type text}, {"AvgMonthlyLongDistanceCharges", type number}, {"MultipleLines", type text}, {"InternetService", type text}, {"InternetType", type text}, {"AvgMonthlyGBDownload", Int64.Type}, {"OnlineSecurity", type text}, {"OnlineBackup", type text}, {"DeviceProtectionPlan", type text}, {"PremiumTechSupport", type text}, {"StreamingTV", type text}, {"StreamingMovies", type text}, {"StreamingMusic", type text}, {"UnlimitedData", type text}, {"Contract", type text}, {"PaperlessBilling", type text}, {"PaymentMethod", type text}, {"MonthlyCharge", type number}, {"TotalCharges", type number}, {"TotalRefunds", type number}, {"TotalExtraDataCharges", Int64.Type}, {"TotalLongDistanceCharges", type number}, {"TotalRevenue", type number}, {"SatisfactionScore", Int64.Type}, {"CustomerStatus", type text}, {"ChurnLabel", type text}, {"ChurnScore", Int64.Type}, {"CLTV", Int64.Type}, {"ChurnCategory", type text}, {"ChurnReason", type text}, {"Date", type date}}),
+  #"Added index" = Table.AddIndexColumn(#"Changed column type", "Index", 0, 1, Int64.Type),
+  #"Reordered columns" = Table.ReorderColumns(#"Added index", {"Index", "CustomerID", "Gender", "Age", "Under30", "SeniorCitizen", "Married", "Dependents", "NumberofDependents", "Country", "State", "City", "ZipCode", "Latitude", "Longitude", "Population", "ReferredaFriend", "Number_of_Referrals", "TenureinMonths", "Offer", "PhoneService", "AvgMonthlyLongDistanceCharges", "MultipleLines", "InternetService", "InternetType", "AvgMonthlyGBDownload", "OnlineSecurity", "OnlineBackup", "DeviceProtectionPlan", "PremiumTechSupport", "StreamingTV", "StreamingMovies", "StreamingMusic", "UnlimitedData", "Contract", "PaperlessBilling", "PaymentMethod", "MonthlyCharge", "TotalCharges", "TotalRefunds", "TotalExtraDataCharges", "TotalLongDistanceCharges", "TotalRevenue", "SatisfactionScore", "CustomerStatus", "ChurnLabel", "ChurnScore", "CLTV", "ChurnCategory", "ChurnReason", "Date"}),
+  #"Added custom" = Table.TransformColumnTypes(Table.AddColumn(#"Reordered columns", "fk_date", each Date.ToText([Date], "ddMMyyyy")), {{"fk_date", type text}}),
+  #"Removed duplicates" = Table.Distinct(#"Added custom", {"CustomerID"}),
+  #"Renamed columns" = Table.RenameColumns(#"Removed duplicates", {{"Index", "TransactionKey"}})
+in
+  #"Renamed columns"

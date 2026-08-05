@@ -1,0 +1,257 @@
+table dim_customer
+	lineageTag: 197ca3ff-258b-4395-82ea-f37126db2794
+
+	column sk_customer
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9712137a-4c3b-49b4-aeaf-c49cb8c80fdc
+		summarizeBy: sum
+		sourceColumn: sk_customer
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column fk_location
+		dataType: string
+		isHidden
+		lineageTag: 398aabff-1c19-44a8-aa89-12dd67c54310
+		summarizeBy: none
+		sourceColumn: fk_location
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column fk_service
+		dataType: string
+		isHidden
+		lineageTag: 58f5f6e0-8a8c-4cb2-a0d3-c9c502ff6b70
+		summarizeBy: none
+		sourceColumn: fk_service
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column bk_customer
+		dataType: string
+		isHidden
+		lineageTag: 2aaf4c4c-2b3e-4de0-b634-045546f46d66
+		summarizeBy: none
+		sourceColumn: bk_customer
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gender
+		dataType: string
+		lineageTag: bf9ccec2-d5bf-449c-b09d-2069bfddc298
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column Age
+		dataType: int64
+		formatString: 0
+		lineageTag: 10a66122-3d92-49b4-9493-13f0c7778a08
+		summarizeBy: sum
+		sourceColumn: Age
+
+		annotation SummarizationSetBy = Automatic
+
+	column Married
+		dataType: string
+		lineageTag: ba3f9b3f-a746-4772-b395-6a65bb06a119
+		summarizeBy: none
+		sourceColumn: Married
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Under 30'
+		dataType: string
+		lineageTag: 5da156b9-4baf-42bd-8f2f-d629758fc20b
+		summarizeBy: none
+		sourceColumn: Under 30
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Senior Citizen'
+		dataType: string
+		lineageTag: ead7a1ba-544d-4640-a8d8-aae139779b62
+		summarizeBy: none
+		sourceColumn: Senior Citizen
+
+		annotation SummarizationSetBy = Automatic
+
+	column Dependents
+		dataType: string
+		lineageTag: 52ea468d-d1d1-42b1-b10d-adcdec5a4a60
+		summarizeBy: none
+		sourceColumn: Dependents
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Number of Dependents'
+		dataType: int64
+		formatString: 0
+		lineageTag: ead1c6f1-a498-4318-b05a-a96c09b6d472
+		summarizeBy: sum
+		sourceColumn: Number of Dependents
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLTV
+		dataType: int64
+		formatString: 0
+		lineageTag: 215887b8-24b1-4ccf-8dad-53454e24f5f7
+		summarizeBy: sum
+		sourceColumn: CLTV
+
+		annotation SummarizationSetBy = Automatic
+
+	column Offer
+		dataType: string
+		lineageTag: 67c077b7-8908-4a30-a304-b9349bf74c2e
+		summarizeBy: none
+		sourceColumn: Offer
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Payment Method'
+		dataType: string
+		lineageTag: f59c11bc-9bef-4958-8628-5bb3fe6d5d78
+		summarizeBy: none
+		sourceColumn: Payment Method
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Paperless Billing'
+		dataType: string
+		lineageTag: 7534a093-6ae7-45c9-af95-108d32207af5
+		summarizeBy: none
+		sourceColumn: Paperless Billing
+
+		annotation SummarizationSetBy = Automatic
+
+	column Contract
+		dataType: string
+		lineageTag: e4e33118-7c9f-4a7b-aab5-1b6451128b5b
+		summarizeBy: none
+		sourceColumn: Contract
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Referred a Friend'
+		dataType: string
+		lineageTag: cbfadbb5-7012-47ab-b9b8-6bdd162e225c
+		summarizeBy: none
+		sourceColumn: Referred a Friend
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Number of Referrals'
+		dataType: int64
+		formatString: 0
+		lineageTag: 70be0452-b4c0-4158-8287-6769121f5954
+		summarizeBy: sum
+		sourceColumn: Number of Referrals
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Phone Service'
+		dataType: string
+		lineageTag: b8ecb989-53bd-4266-9377-03d7bbe3e900
+		summarizeBy: none
+		sourceColumn: Phone Service
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Multiple Lines'
+		dataType: string
+		lineageTag: 331443d9-d535-4850-b984-f5a9bc16df94
+		summarizeBy: none
+		sourceColumn: Multiple Lines
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Online Security'
+		dataType: string
+		lineageTag: dd17b6ec-343d-47f8-b74a-ca1b7ee3e38a
+		summarizeBy: none
+		sourceColumn: Online Security
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Online Backup'
+		dataType: string
+		lineageTag: b3f30d91-6d37-46c5-a7e0-010b193b977e
+		summarizeBy: none
+		sourceColumn: Online Backup
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Device Protection Plan'
+		dataType: string
+		lineageTag: 641cdc65-45bc-411e-90ad-92f78be8f3b6
+		summarizeBy: none
+		sourceColumn: Device Protection Plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Premium Tech Support'
+		dataType: string
+		lineageTag: 1a5f2d1b-ac3d-48db-881c-2fceb607aeb7
+		summarizeBy: none
+		sourceColumn: Premium Tech Support
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Streaming TV'
+		dataType: string
+		lineageTag: d7f71bc2-99cc-44c9-9598-522b2b0e84b4
+		summarizeBy: none
+		sourceColumn: Streaming TV
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Streaming Movies'
+		dataType: string
+		lineageTag: a5adf8d4-8816-4291-b222-7dc9a93b9140
+		summarizeBy: none
+		sourceColumn: Streaming Movies
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Streaming Music'
+		dataType: string
+		lineageTag: eecb6adf-5343-4336-b83a-ec9168138930
+		summarizeBy: none
+		sourceColumn: Streaming Music
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Unlimited Data'
+		dataType: string
+		lineageTag: 99346c73-6420-45ca-8e80-988e392cacf8
+		summarizeBy: none
+		sourceColumn: Unlimited Data
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_customer = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com"),
+				    DW_Telco_Data_Warehouse = Source{[Name="DW_Telco_Data_Warehouse"]}[Data],
+				    dbo_dim_customer = DW_Telco_Data_Warehouse{[Schema="dbo",Item="dim_customer"]}[Data],
+				    #"Renamed Columns" = Table.RenameColumns(dbo_dim_customer,{{"DeviceProtectionPlan", "Device Protection Plan"}, {"MultipleLines", "Multiple Lines"}, {"NumberofDependents", "Number of Dependents"}, {"NumberofReferrals", "Number of Referrals"}, {"OnlineBackup", "Online Backup"}, {"OnlineSecurity", "Online Security"}, {"PaperlessBilling", "Paperless Billing"}, {"PaymentMethod", "Payment Method"}, {"PhoneService", "Phone Service"}, {"PremiumTechSupport", "Premium Tech Support"}, {"ReferredaFriend", "Referred a Friend"}, {"SeniorCitizen", "Senior Citizen"}, {"StreamingMovies", "Streaming Movies"}, {"StreamingMusic", "Streaming Music"}, {"StreamingTV", "Streaming TV"}, {"Under30", "Under 30"}, {"UnlimitedData", "Unlimited Data"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+

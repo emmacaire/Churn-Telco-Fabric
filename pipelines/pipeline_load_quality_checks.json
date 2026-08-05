@@ -1,0 +1,344 @@
+{
+    "name": "PL Telco log quality checks",
+    "objectId": "f1c7324e-fa29-42ef-a917-1d44b4caba5d",
+    "properties": {
+        "activities": [
+            {
+                "name": "Empty log table",
+                "type": "Script",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "connectionSettings": {
+                    "name": "STG_Telco_Silver_Layer",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "Query",
+                            "text": {
+                                "value": "TRUNCATE TABLE log_quality_checks_churn",
+                                "type": "Expression"
+                            }
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "Wait emptying log table",
+                "type": "Wait",
+                "dependsOn": [
+                    {
+                        "activity": "Empty log table",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "typeProperties": {
+                    "waitTimeInSeconds": 1
+                }
+            },
+            {
+                "name": "QC Customer - integrity bk",
+                "type": "SqlServerStoredProcedure",
+                "dependsOn": [
+                    {
+                        "activity": "Wait emptying log table",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "storedProcedureName": "[dbo].[Procedure_BKIntegrity]",
+                    "storedProcedureParameters": {
+                        "bk_column": {
+                            "value": "bk_customer",
+                            "type": "String"
+                        },
+                        "table_name": {
+                            "value": "stg_dim_customer",
+                            "type": "String"
+                        }
+                    }
+                },
+                "connectionSettings": {
+                    "name": "STG_Telco_Silver_Layer",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "QC Customer - Uniqueness of dimension attributes",
+                "type": "SqlServerStoredProcedure",
+                "dependsOn": [
+                    {
+                        "activity": "Wait emptying log table",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "storedProcedureName": "[dbo].[Procedure_UniquenessDimAttributes]",
+                    "storedProcedureParameters": {
+                        "columns": {
+                            "value": "Gender, Age, Married, Under30, SeniorCitizen, Dependents, NumberofDependents, CLTV, Offer, PaymentMethod, PaperlessBilling, Contract, ReferredaFriend, NumberofReferrals, PhoneService, MultipleLines, OnlineSecurity, OnlineBackup, DeviceProtectionPlan, PremiumTechSupport, UnlimitedData, StreamingTV, StreamingMusic, StreamingMovies",
+                            "type": "String"
+                        },
+                        "table_name": {
+                            "value": "stg_dim_customer",
+                            "type": "String"
+                        }
+                    }
+                },
+                "connectionSettings": {
+                    "name": "STG_Telco_Silver_Layer",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "QC Presence of parent keys",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "Wait emptying log table",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "connectionSettings": {
+                    "name": "STG_Telco_Silver_Layer",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "Query",
+                            "text": {
+                                "value": "--- Integrity of foreign key of Dim Customer on Fact Customer Transactions --\r\nINSERT INTO STG_Telco_Silver_Layer.dbo.log_quality_checks_churn                \r\nSELECT \r\n    'stg_fact_customer_transactions'                                           AS ETL_TABLE,\r\n    'check parent of FK for Customer dimension'                             AS ETL_CHECKTYPE,\r\n    'number of rows without parent key: ' + CAST(MAX(row_count) AS VARCHAR) AS DESCRIPTION_RESULT,\r\n    CASE \r\n        WHEN MAX(row_count) > 0 THEN 'FAILED' ELSE 'OK'\r\n    END                                                             AS ETL_RESULT\r\nFROM \r\n    (\r\n    SELECT COUNT(*) AS row_count\r\n    FROM stg_fact_customer_transactions\r\n    LEFT JOIN stg_dim_customer ON stg_fact_customer_transactions.fk_customer = stg_dim_customer.bk_customer\r\n    WHERE stg_dim_customer.bk_customer IS NULL\r\n    ) q;\r\n--- Integrity of foreign key of Dim Service on Dim Customer ---\r\nINSERT INTO STG_Telco_Silver_Layer.dbo.log_quality_checks_churn                \r\nSELECT \r\n    'stg_dim_customer'                                                      AS ETL_TABLE,\r\n    'check parent of FK for Service dimension'                              AS ETL_CHECKTYPE,\r\n    'number of rows without parent key: ' + CAST(MAX(row_count) AS VARCHAR) AS DESCRIPTION_RESULT,\r\n    CASE \r\n        WHEN MAX(row_count) > 0 THEN 'FAILED' ELSE 'OK'\r\n    END                                                             AS ETL_RESULT\r\nFROM \r\n    (\r\n    SELECT COUNT(*) AS row_count\r\n    FROM stg_dim_customer\r\n    LEFT JOIN stg_dim_service ON stg_dim_customer.fk_service = stg_dim_service.bk_service\r\n    WHERE stg_dim_service.bk_service IS NULL\r\n    ) q;\r\n--- Integrity of foreign key of Dim Location on Dim Customer ---\r\nINSERT INTO STG_Telco_Silver_Layer.dbo.log_quality_checks_churn                \r\nSELECT \r\n    'stg_dim_customer'                                                      AS ETL_TABLE,\r\n    'check parent of FK for Location dimension'                             AS ETL_CHECKTYPE,\r\n    'number of rows without parent key: ' + CAST(MAX(row_count) AS VARCHAR) AS DESCRIPTION_RESULT,\r\n    CASE \r\n        WHEN MAX(row_count) > 0 THEN 'FAILED' ELSE 'OK'\r\n    END                                                             AS ETL_RESULT\r\nFROM \r\n    (\r\n    SELECT COUNT(*) AS row_count\r\n    FROM stg_dim_customer\r\n    LEFT JOIN stg_dim_location ON stg_dim_customer.fk_location = stg_dim_location.bk_location\r\n    WHERE stg_dim_location.bk_location IS NULL\r\n    ) q;",
+                                "type": "Expression"
+                            }
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "QC Location - Uniqueness of dimension attributes",
+                "type": "SqlServerStoredProcedure",
+                "dependsOn": [
+                    {
+                        "activity": "Wait emptying log table",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "storedProcedureName": "[dbo].[Procedure_UniquenessDimAttributes]",
+                    "storedProcedureParameters": {
+                        "columns": {
+                            "value": "City, ZipCode, Latitude, Longitude, Population",
+                            "type": "String"
+                        },
+                        "table_name": {
+                            "value": "stg_dim_location",
+                            "type": "String"
+                        }
+                    }
+                },
+                "connectionSettings": {
+                    "name": "STG_Telco_Silver_Layer",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "QC Location - integrity bk",
+                "type": "SqlServerStoredProcedure",
+                "dependsOn": [
+                    {
+                        "activity": "Wait emptying log table",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "storedProcedureName": "[dbo].[Procedure_BKIntegrity]",
+                    "storedProcedureParameters": {
+                        "bk_column": {
+                            "value": "bk_location",
+                            "type": "String"
+                        },
+                        "table_name": {
+                            "value": "stg_dim_location",
+                            "type": "String"
+                        }
+                    }
+                },
+                "connectionSettings": {
+                    "name": "STG_Telco_Silver_Layer",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "QC Transactions - positive billing",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "Wait emptying log table",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "connectionSettings": {
+                    "name": "STG_Telco_Silver_Layer",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "Query",
+                            "text": {
+                                "value": "INSERT INTO STG_Telco_Silver_Layer.dbo.log_quality_checks_churn               \nSELECT \n    'stg_fact_customer_transactions'                                           AS ETL_TABLE,\n    'check existence of non positive value in billing field'                   AS ETL_CHECKTYPE,\n    'number of rows without positive value: ' + CAST(MAX(row_count) AS VARCHAR) AS DESCRIPTION_RESULT,\n    CASE \n        WHEN MAX(row_count) > 0 THEN 'FAILED' ELSE 'OK'\n    END                                                             AS ETL_RESULT\nFROM \n    (\n    SELECT COUNT(*) AS row_count\n    FROM stg_fact_customer_transactions\n    WHERE MonthlyCharge <= 0\n    ) q;",
+                                "type": "Expression"
+                            }
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            }
+        ],
+        "lastModifiedByObjectId": "a2fc504d-eed9-4296-a900-c2d16d3cfa10",
+        "lastPublishTime": "2026-07-29T15:43:37Z"
+    }
+}

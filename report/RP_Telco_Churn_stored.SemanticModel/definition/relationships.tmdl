@@ -1,0 +1,19 @@
+relationship 0e601f1f-3508-4cea-41a8-4806360f5b59
+	fromColumn: fact_customer_transactions.fk_date
+	toColumn: dim_date.bk_date
+
+relationship 3d8ee6a8-7183-bfb1-93ca-e2954e7b99bf
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: dim_customer.bk_customer
+	toColumn: fact_customer_transactions.fk_customer
+
+relationship 6dca12a4-2eaf-8a57-85d9-b666d22f49ad
+	isActive: false
+	fromColumn: dim_customer.fk_service
+	toColumn: dim_service.bk_service
+
+relationship f91de67c-c6a0-3185-6c65-aa320bb31f4c
+	fromColumn: dim_customer.fk_location
+	toColumn: dim_location.bk_location
+

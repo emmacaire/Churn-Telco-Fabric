@@ -1,0 +1,236 @@
+{
+    "name": "PL Telco load stg area",
+    "objectId": "989d90f5-c461-4d3c-a6ac-4622dec7317e",
+    "properties": {
+        "activities": [
+            {
+                "name": "Truncate tables before loading",
+                "type": "Script",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "connectionSettings": {
+                    "name": "STG_Telco_Silver_Layer",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "75u33zhx4yxezmshig2uxisjby-rssjiscfv5wu3npjf6qqhpfvce.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "e8a1cdab-b9fe-4b21-ab82-9349d4da2a2d",
+                            "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511"
+                        },
+                        "externalReferences": {
+                            "connection": "628b09ef-70bc-40f8-816c-baf2914ad0b8"
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "Query",
+                            "text": {
+                                "value": "truncate table stg_dim_customer\ntruncate table stg_dim_date;\ntruncate table stg_dim_location;\ntruncate table stg_dim_service;\ntruncate table stg_fact_customer_transactions;",
+                                "type": "Expression"
+                            }
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "Wait truncate tables",
+                "type": "Wait",
+                "dependsOn": [
+                    {
+                        "activity": "Truncate tables before loading",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "typeProperties": {
+                    "waitTimeInSeconds": 1
+                }
+            },
+            {
+                "name": "DF load stg dim service",
+                "type": "RefreshDataflow",
+                "dependsOn": [
+                    {
+                        "activity": "Wait truncate tables",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "dataflowId": "c11adf0f-60ed-48ca-a578-adc5bb7c1798",
+                    "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511",
+                    "notifyOption": "NoNotification",
+                    "dataflowType": "DataflowFabric",
+                    "executeMashupQueriesOnly": true
+                }
+            },
+            {
+                "name": "DF load stg dim location",
+                "type": "RefreshDataflow",
+                "dependsOn": [
+                    {
+                        "activity": "Wait truncate tables",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "dataflowId": "3f1724d0-3d4d-4c8e-8b54-e3efddda74a4",
+                    "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511",
+                    "notifyOption": "NoNotification",
+                    "dataflowType": "DataflowFabric",
+                    "executeMashupQueriesOnly": true
+                }
+            },
+            {
+                "name": "Wait load dim service and location",
+                "type": "Wait",
+                "dependsOn": [
+                    {
+                        "activity": "DF load stg dim service",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "DF load stg dim location",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "typeProperties": {
+                    "waitTimeInSeconds": 1
+                }
+            },
+            {
+                "name": "DF load stg dim customer",
+                "type": "RefreshDataflow",
+                "dependsOn": [
+                    {
+                        "activity": "Wait load dim service and location",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "dataflowId": "4bf6fb7b-17c7-4617-b7a7-4f4a8915e43a",
+                    "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511",
+                    "notifyOption": "NoNotification",
+                    "dataflowType": "DataflowFabric",
+                    "executeMashupQueriesOnly": true
+                }
+            },
+            {
+                "name": "DF load stg dim date",
+                "type": "RefreshDataflow",
+                "dependsOn": [
+                    {
+                        "activity": "Wait truncate tables",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "dataflowId": "a7cade44-7270-4a10-a684-73c3915c1092",
+                    "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511",
+                    "notifyOption": "NoNotification",
+                    "dataflowType": "DataflowFabric",
+                    "executeMashupQueriesOnly": true
+                }
+            },
+            {
+                "name": "Wait load dim customer and date",
+                "type": "Wait",
+                "dependsOn": [
+                    {
+                        "activity": "DF load stg dim customer",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "DF load stg dim date",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "typeProperties": {
+                    "waitTimeInSeconds": 1
+                }
+            },
+            {
+                "name": "DF load stg fact transaction",
+                "type": "RefreshDataflow",
+                "dependsOn": [
+                    {
+                        "activity": "Wait load dim customer and date",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "dataflowId": "16e2ab91-62b9-40be-b94c-d8de32f699d4",
+                    "workspaceId": "4894a48c-af45-4d6d-b5e9-2fa103bcb511",
+                    "notifyOption": "NoNotification",
+                    "dataflowType": "DataflowFabric",
+                    "executeMashupQueriesOnly": true
+                }
+            }
+        ],
+        "lastModifiedByObjectId": "a2fc504d-eed9-4296-a900-c2d16d3cfa10",
+        "lastPublishTime": "2026-07-29T14:53:47Z"
+    }
+}
