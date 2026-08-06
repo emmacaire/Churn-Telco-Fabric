@@ -1,5 +1,5 @@
 # Telco Customer Churn
-**Source Data:** Kaggle (https://www.kaggle.com/datasets/abdallahwagih/telco-customer-churn)
+**Source Data:** Kaggle [link](https://www.kaggle.com/datasets/abdallahwagih/telco-customer-churn) / Download [CSV table](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/source/TelcoCustomerChurn.csv)
 
 ## 📌 Summary
 With this project I developed a realistic Business Intelligence workflow from enterprise data collection to the delivery of a Power BI report and data-driven future prescriptive actions. Data involved customer transactions as contract renewal, new contract or end of contract. In case of churn, additional data on the reason why the customer interrupted the contract was collected.
@@ -11,13 +11,14 @@ Once the clean data was loaded in the warehouse, a Snowflake schema was created 
 A more detailed description of the project phases follows in the Project Details section.
 
 ## 📊 Key Deliverables & Artifacts
-* 📂 **[Interactive Power BI report](add download link......................):** [🚀 Click Here to Launch Interactive Dashboard](https://app.powerbi.com/view?r=YOUR_PUBLISH_TO_WEB_LINK)
-* 📄 **[Fabric scripts](./report/data_dictionary_gaming.pdf):** A set of scripts and tools to perform the ETL process in Microsoft Fabric. Since the workspace is not accessible, the list of scripts is available below
-  - IPYNB Python notebook for data manipulation
-  - SQL scripts for loading staging area warehouse and data warehouse
-  - SQL scripts for loading the quality checks table and relative stored procedures
-  - TXT files with M language dataflows in the ETL phase to load dimensions and facts
-  - JSON files with the pipeline commands
+* 📂 **Interactive Power BI report:** Download the interactive .pbix [report](./powerbi/RP_Telco_Churn_stored.pbix/) file to open and interact with the full dashboard in Power BI Desktop.
+* 📄 **Project Source Code:** View the .pbib [folder](./powerbi/RP_Telco_Churn_stored.pbip/) to inspect the underlying DAX measures, TMDL model definitions, and report metadata tracked via Git. 
+* 📄 **Fabric scripts:** View the set of scripts and tools used to perform the ETL process in Microsoft Fabric.
+  - IPYNB Python [notebook](.notebooks/NB_Telco_Churn_Python_preparation.ipynb) for data manipulation
+  - SQL scripts for loading [staging area warehouse](.sql/sql_load_staging_area.sql) and [data warehouse](.sql/sql_load_data_warehouse.sql)
+  - SQL scripts for loading the [quality checks table](.sql/sql_create_log_table_quality_checks.sql) and relative [stored procedures](.sql/sql_stored_procedures_quality_checks.sql)
+  - TXT files with M language [dataflows](.dataflows/Dataflows_Telco_Churn.txt) in the ETL phase to load dimensions and facts
+  - JSON files with the [pipeline](.pipelines) commands
 
 
 ![Dashboard Preview](./assets/dashboard-demo.gif)
@@ -37,42 +38,121 @@ A more detailed description of the project phases follows in the Project Details
 
 ## 📋 Project Details
 
-**Phase 1: Source Data selection**
-...
+<ins>Phase 1: Source Data selection</ins>
 
-**Phase 2: Source Data manipulation in Python**
-  The source data was rich in variables and categories that would allow to build a solid dimensional model, but presented a fundamental limitation, referring only to Q3 in 2025 with no exact date. For this reason a quick Python manipulation to add a allowed for a time dimension to be added
+The Telco California Churn dataset is large enough in terms of rows (7000+) and offers a wide range of variables and categories that allow to build a solid dimensional model, including longitude and latitude to support map views. However, it presents a fundamental limitation, reporting only Q3 2025 transactions with no precise date. This would not allow the creation of a proper dimension date and I would miss several opportunities for analysis. For this reason, I opt for a quick manipulation in Python that generates an artificial date column.
 
-**Phase 3: Loading the Source Data in Fabric (Bronze Layer)**
+<img width="1286" height="246" alt="image" src="https://github.com/user-attachments/assets/05a4923b-0dc4-445c-a518-6162f79cc121" />
+<br>
+<br>
 
-**Phase 4: ETL in Fabric (Silver Layer)**
+<ins>Phase 2: Source Data manipulation in Python</ins>
+  
+In Python I create a column with randomly generated dates for the whole 2025 year. This will likely give very flat distributions, without significant peaks or patterns, but I am curious to confirm this intuition after the analysis.
+In addition I check for outliers, data entry errors (negative values or out of scale values), missing data, etc.
+The code to create random dates looks like this:
 
+<br>
+<img width="522" height="152" alt="ph2_python" src="https://github.com/user-attachments/assets/1c40bc5d-f0ca-409e-8ca5-b4661788f952" />
+<br>
+<br>
+
+<ins>Phase 3: Loading the Source Data in Fabric (Bronze Layer)</ins>
+
+Now that the source data has been improved, it is imported in Fabric as the Bronze layer in CSV format, and stored in a Lakehouse. From this one, I will use dataflows to transform the source table and load the dimension and fact tables.
+<br>
+<br>
+
+<ins>Phase 4: Select the business questions and define the dimensional model </ins>
+
+Once the source data is available, the most important of all steps is to understand what do I need the data to tell me, and how I will get the information. This is the moment where I understand how much can be asked to this dataset. The date and geographical coordinates suggest that Date and Location dimensions would be very helpful to extract patterns in terms of time/space. In addition, each transaction is linked to a customer code, which will be crucial for profiling the type of user, adding a Customer dimension. In addition, two columns in hierarchical sequence define whether the user has internet and if so, what type it is. Thus I will add a Service category, while all the other binary variables on other types of service are not linked to each other in a hierarchical way, therefore they will left as attributes. Each transaction other than the customer status (stayed, churned, joined) also contains important measures: the tenure in month and the charge in USD are important metrics that relate to the customer status. The sort of questions that the model will allow to answer is this:
+- did the company have more customers joining or leaving?
+- how does geography affect churn and the related metrics?
+- is the churn rate changing throughout the year? (unlikely given that the column was generated artificially)
+- what motivation did the customer indicate as main reason for churning?
+- are demographic and product features distributed differently across customer that stayed, churned and joined?
+- is there a relationship between metrics, such as tenure in months and customer charge?
+
+The defined model was a Snowflake schema where Fact Customer Transactions would link to Dimension Date and Dimension Customer, while Dimension Customer would further connect to Dimension Service and Dimension Location.
+<br>
+
+<ins>Phase 5: ETL in Fabric (Silver Layer)</ins>
+
+The defined dimensions and fact tables are created with an [SQL query](.sql/sql_load_staging_area.sql) and data is ingested there through [dataflows](.dataflows/Dataflows_Telco_Churn.txt).
+Dataflows commands include selecting the appropriate columns, generating new columns that build other categories on top of the existing ones, cleaning the dimension rows by removing duplicates, and ensuring that the primary and foreign keys are selected appropriately.
+Once all the dataflows are ready I create a pipeline that will load all the data from the in a Staging Area warehouse, where some quality checks will be performed before loading into the final data warehouse.
+
+<br>
 <img width="1566" height="335" alt="PL_load_staging_area" src="https://github.com/user-attachments/assets/67ac9cd7-9145-4ed6-96ac-e5e11d178da3" />
 
+<br>
+Another pipeline is created to perform quality checks including the integrity of the business key, the uniqueness of dimension attributes, no negative values in the charge column, and the prensence of the parent key for each child table referencing other foreign keys. Those checks are done through direct [scripts](.sql/sql_create_log_table_quality_checks.sql) in the pipeline or through [stored procedures](.sql/sql_stored_procedures_quality_checks.sql). 
+
+<br>
 <img width="587" height="542" alt="PL_log_quality_checks" src="https://github.com/user-attachments/assets/5d16bdd1-6deb-4862-b070-c023454d67e4" />
 
-**Phase 5: Loading the Data Warehouse in Fabric (Gold Layer)**
+<br>
+The results, after the pipeline is run, are visible in the quality checks table in the staging area warehouse.
+
+<br>
+<img width="1237" height="257" alt="ETL_quality_checks" src="https://github.com/user-attachments/assets/f9d25646-03c2-43a8-8bde-e315ff4bb82e" />
+
+<br>
+After having checked the data in the staging area, I can finally transfer my table content to the final Data Warehouse in the Gold Layer.
+<br>
+
+
+<ins>Phase 6: Loading the Data Warehouse in Fabric (Gold Layer)</ins>
+
+With another pipeline, I can now fill the Data Warehouse with the filtered and cleaned data from the Staging Area data warehouse. The key focus in the pipeline is on ensuring that each dimension table referencing a foreign key...........................
 
 <img width="1497" height="411" alt="PL_load_data_warehouse" src="https://github.com/user-attachments/assets/44d6f33e-538b-46a2-bab9-1ac70d353b47" />
 
 
-**Phase 6: Creating the relational model in Power BI**
+<ins>Phase 7: Creating the relational model in Power BI</ins>
 
-**Phase 7: Creating additional measures (DAX)**
+In this stage I create the semantic model and link tables with appropriate relationships, and additionally perform some changes that will help during the creation of the report:
+* set Dimension Date as the Date reference table,
+* create the date hierarchy,
+* order the text version of the Weekday and Month by the corresponding numeric column, for them to be displayed in logical order, rather than in alphabetical one.
+* rename fields so they look more synthetic and visually appealing on the dashboards,
+* hide fields of surrogate and business keys, since they will not be used in the visuals.
 
-**Phase 8: Selecting key insights and creating the report**
+<br>
+<img width="1037" height="512" alt="image" src="https://github.com/user-attachments/assets/c742d2ce-e7f6-4259-9a3d-f6ecaaf027f3" />
 
-**Phase 9: Summarizing prescriptive actions**
+<br>
+<ins>Phase 8: Creating additional measures (DAX)</ins>
 
-Full report preview>
+The time has come to identify which other measures would be interesting for the report ........
+A few examples:
+..................................
+
+<ins>Phase 9: Selecting key insights and creating the report</ins>
+
+The report will be made by .................................................
+
+<ins>Phase 10: Summarizing prescriptive actions</ins>
+
+After viewing the report, the following conclusions should be drawn, and prescriptive actions:
+1. INSIGHT: there is an urgent need to stop the bleeding (churn) that is as high as 25% in the past year. The main reason seems to be ACTION: 
+2. INSIGHT: there are significant differences in geographical . ACTION: San Diego area is causing massive churn due to high charges. Fresno should be taken as a model
+3. INSIGHT: there are limited variations in terms of time of the year. ACTION: customers seem to be ..... (note: dates generated artificially explain this pattern, as explained in phase 2).
+4. INSIGHT: ACTION:
+
+Full report preview:
 
 <img width="1452" height="816" alt="RP_pg1" src="https://github.com/user-attachments/assets/6ee70fec-c04c-4c7b-b2de-62c74e736246" />
+ 
 
 <img width="1312" height="737" alt="RP_pg2" src="https://github.com/user-attachments/assets/d47466fd-6867-4eeb-98aa-db6b7d00454e" />
+ 
 
 <img width="1312" height="732" alt="RP_pg3" src="https://github.com/user-attachments/assets/e994492c-f91b-4367-85af-24a6db45f0f4" />
+ 
 
 <img width="1455" height="820" alt="RP_pg4" src="https://github.com/user-attachments/assets/e896e3fd-0e3e-41fa-aa09-bb1fd3d773ec" />
+ 
 
 <img width="1312" height="736" alt="RP_pg5" src="https://github.com/user-attachments/assets/0c8da78e-3cc8-4601-a989-620749cf0a41" />
 
