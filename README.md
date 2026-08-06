@@ -1,5 +1,7 @@
 # Telco Customer Churn
 **Source Data:** Kaggle [link](https://www.kaggle.com/datasets/abdallahwagih/telco-customer-churn) / Download [CSV table](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/source/TelcoCustomerChurn.csv)
+<br>
+<br>
 
 ## 📌 Summary
 With this project I developed a realistic Business Intelligence workflow from enterprise data collection to the delivery of a Power BI report and data-driven future prescriptive actions. Data involved customer transactions as contract renewal, new contract or end of contract. In case of churn, additional data on the reason why the customer interrupted the contract was collected.
@@ -9,7 +11,8 @@ Afterwards the manipulated source data was loaded in Fabric, first in a Staging 
 Once the clean data was loaded in the warehouse, a Snowflake schema was created in the semantic model and the most relevant insights were presented in a 5-dashboard report. 
 
 A more detailed description of the project phases follows in the Project Details section.
-
+<br>
+<br>
 ## 📊 Key Deliverables & Artifacts
 * 📂 **Interactive Power BI report:** Download the interactive .pbix [report](./powerbi/RP_Telco_Churn_stored.pbix/) file to open and interact with the full dashboard in Power BI Desktop.
 * 📄 **Project Source Code:** View the .pbib [folder](./powerbi/RP_Telco_Churn_stored.pbip/) to inspect the underlying DAX measures, TMDL model definitions, and report metadata tracked via Git. 
@@ -20,7 +23,6 @@ A more detailed description of the project phases follows in the Project Details
   - TXT files with M language [dataflows](.dataflows/Dataflows_Telco_Churn.txt) in the ETL phase to load dimensions and facts
   - JSON files with the [pipeline](.pipelines) commands
 
-
 ![Dashboard Preview](./assets/dashboard-demo.gif)
 
 ## 🛠️ Tech Stack & Methodology
@@ -30,11 +32,11 @@ A more detailed description of the project phases follows in the Project Details
   - Python (notebook for data manipulation and data cleaning)
 
 * **Visualization tools:**  bar charts, donut charts, decomposition trees, multi-level cards, KPIs, slicers, interactive maps, scatter plots, navigation buttons, custom tooltips.
-
+<br>
 <img width="1452" height="816" alt="RP_pg1" src="https://github.com/user-attachments/assets/90af4680-2dc9-45d0-8d8d-7e967279232a" />
-
+<br>
 <img width="1455" height="820" alt="RP_pg4" src="https://github.com/user-attachments/assets/fba39242-e86a-444b-b8a6-ba7247f9de7b" />
-
+<br>
 
 ## 📋 Project Details
 
@@ -56,7 +58,6 @@ The code to create random dates looks like this:
 <img width="522" height="152" alt="ph2_python" src="https://github.com/user-attachments/assets/1c40bc5d-f0ca-409e-8ca5-b4661788f952" />
 <br>
 <br>
-
 <ins>Phase 3: Loading the Source Data in Fabric (Bronze Layer)</ins>
 
 Now that the source data has been improved, it is imported in Fabric as the Bronze layer in CSV format, and stored in a Lakehouse. From this one, I will use dataflows to transform the source table and load the dimension and fact tables.
@@ -75,84 +76,110 @@ Once the source data is available, the most important of all steps is to underst
 
 The defined model was a Snowflake schema where Fact Customer Transactions would link to Dimension Date and Dimension Customer, while Dimension Customer would further connect to Dimension Service and Dimension Location.
 <br>
-
+<br>
 <ins>Phase 5: ETL in Fabric (Silver Layer)</ins>
 
 The defined dimensions and fact tables are created with an [SQL query](.sql/sql_load_staging_area.sql) and data is ingested there through [dataflows](.dataflows/Dataflows_Telco_Churn.txt).
 Dataflows commands include selecting the appropriate columns, generating new columns that build other categories on top of the existing ones, cleaning the dimension rows by removing duplicates, and ensuring that the primary and foreign keys are selected appropriately.
 Once all the dataflows are ready I create a pipeline that will load all the data from the in a Staging Area warehouse, where some quality checks will be performed before loading into the final data warehouse.
-
+<br>
 <br>
 <img width="1566" height="335" alt="PL_load_staging_area" src="https://github.com/user-attachments/assets/67ac9cd7-9145-4ed6-96ac-e5e11d178da3" />
-
+<br>
 <br>
 Another pipeline is created to perform quality checks including the integrity of the business key, the uniqueness of dimension attributes, no negative values in the charge column, and the prensence of the parent key for each child table referencing other foreign keys. Those checks are done through direct [scripts](.sql/sql_create_log_table_quality_checks.sql) in the pipeline or through [stored procedures](.sql/sql_stored_procedures_quality_checks.sql). 
-
+<br>
 <br>
 <img width="587" height="542" alt="PL_log_quality_checks" src="https://github.com/user-attachments/assets/5d16bdd1-6deb-4862-b070-c023454d67e4" />
-
+<br>
 <br>
 The results, after the pipeline is run, are visible in the quality checks table in the staging area warehouse.
-
+<br>
 <br>
 <img width="1237" height="257" alt="ETL_quality_checks" src="https://github.com/user-attachments/assets/f9d25646-03c2-43a8-8bde-e315ff4bb82e" />
-
+<br>
 <br>
 After having checked the data in the staging area, I can finally transfer my table content to the final Data Warehouse in the Gold Layer.
 <br>
-
-
+<br>
 <ins>Phase 6: Loading the Data Warehouse in Fabric (Gold Layer)</ins>
 
-With another pipeline, I can now fill the Data Warehouse with the filtered and cleaned data from the Staging Area data warehouse. The key focus in the pipeline is on ensuring that each dimension table referencing a foreign key...........................
+With another pipeline, I can now fill the Data Warehouse with the filtered and cleaned data from the Staging Area data warehouse. The key focus in the pipeline is on ensuring that each dimension table is loaded with an additional progressive surrogate key, other than the business key. It's the surrogate key that will reference the dimension as a foreign key in the fact table, instead of the business key.
 
 <img width="1497" height="411" alt="PL_load_data_warehouse" src="https://github.com/user-attachments/assets/44d6f33e-538b-46a2-bab9-1ac70d353b47" />
-
-
+<br>
+<br>
 <ins>Phase 7: Creating the relational model in Power BI</ins>
-
-In this stage I create the semantic model and link tables with appropriate relationships, and additionally perform some changes that will help during the creation of the report:
+<br>
+At this stage I create the semantic model in Power BI and link tables with appropriate relationships. I additionally perform some changes that will help during the creation of the report:
 * set Dimension Date as the Date reference table,
 * create the date hierarchy,
 * order the text version of the Weekday and Month by the corresponding numeric column, for them to be displayed in logical order, rather than in alphabetical one.
 * rename fields so they look more synthetic and visually appealing on the dashboards,
 * hide fields of surrogate and business keys, since they will not be used in the visuals.
-
+<br>
 <br>
 <img width="1037" height="512" alt="image" src="https://github.com/user-attachments/assets/c742d2ce-e7f6-4259-9a3d-f6ecaaf027f3" />
-
+<br>
 <br>
 <ins>Phase 8: Creating additional measures (DAX)</ins>
-
-The time has come to identify which other measures would be interesting for the report ........
+<br>
+The time has come to identify which other measures would be interesting for the report. This includes count of total rows, average values, % ratios, Month-over-Month growth, etc.
 A few examples:
-..................................
-
+<br>
+<br>
+Total Transactions = COUNTROWS('fact_customer_transactions')
+<br>
+Churn Transactions = CALCULATE(COUNTROWS(fact_customer_transactions),fact_customer_transactions[Status]="Churned")
+<br>
+Churn Rate = DIVIDE ([Churn Transactions],[Total Transactions],0)
+<br>
+Churn Losses = [Avg Charge Churned] * [Churn Transactions] * (-1)
+<br>
+% Churned Losses = DIVIDE([Churn Losses],[Total Revenue],0)
+<br>
+<br>
+<br>
 <ins>Phase 9: Selecting key insights and creating the report</ins>
 
-The report will be made by .................................................
-
+The report will be made by 5 dashboards, as displayed at the bottom of this page. Buttons on the left allow to easily switch from one to another dashboard.
+<br>
+Brief description of the dashboards:
+<br>
+1. **Churn Overview**: a list of KPI on churned and joined customers and a summary of the main reasons indicated by customers when asked why they decided to cancel their contract, in order to immediately capture the general situation.
+2. **Demographic comparison**: a comparison of key metrics and demographic attributes between customers who stayed and those who churned, to understand which ones present significant differences between the two sub-groups and which not.
+3. **Product comparison**: an extension of previous analysis but focusing on product characteristics rather than customer profile, to capture the different products that customers were using when deciding to opt out or renew.
+4. **Churn Map**: a dashboard capturing all relevant geographical differences, with two charts focusing on main cities and a full map where the slicer can filter by the reason for churning, and the data points are further labeled by length of tenure in months (color of the dot) and monthly charge (size of the dot).
+5. **Time Series**: it displays the most interesting month-over-month evolution in % compared to previous month, and two further stacked bar charts that cross check motivation for churning by month, and churn in large cities by quarter, capturing significant differences.
+<br>
+<br>
 <ins>Phase 10: Summarizing prescriptive actions</ins>
 
-After viewing the report, the following conclusions should be drawn, and prescriptive actions:
-1. INSIGHT: there is an urgent need to stop the bleeding (churn) that is as high as 25% in the past year. The main reason seems to be ACTION: 
-2. INSIGHT: there are significant differences in geographical . ACTION: San Diego area is causing massive churn due to high charges. Fresno should be taken as a model
-3. INSIGHT: there are limited variations in terms of time of the year. ACTION: customers seem to be ..... (note: dates generated artificially explain this pattern, as explained in phase 2).
-4. INSIGHT: ACTION:
-
+After viewing the report, the users should take their own conclusions based on their business knowledge. 
+Based on our limited knowledge of the market and the company, I list some pairs of insights + suggested actions that should be prescribed in order to improve the business strategy:
+<br>
+INSIGHT #1: there is an urgent need to address the high amount of lost customers during 2025 (30%!), which is not compensated at all by the number of new customers. Competitors seem to be performing aggressive strategies that convince users to change, more than any other reason. ACTION: immediately compare the products with those of customers and evaluate more effective strategies for customer retention.
+<br>
+INSIGHT #2: there are significant differences in geographical areas. ACTION: San Diego area is causing massive churn due to high charges. Fresno should be taken as a model
+<br>
+INSIGHT #3: there are limited variations in terms of time of the year. ACTION: customers seem to be ..... (note: dates generated artificially explain this pattern, as explained in phase 2).
+<br>
+INSIGHT #4: ACTION:
+<br>
+<br>
 Full report preview:
-
+<br>
 <img width="1452" height="816" alt="RP_pg1" src="https://github.com/user-attachments/assets/6ee70fec-c04c-4c7b-b2de-62c74e736246" />
- 
-
+<br>
+<br>
 <img width="1312" height="737" alt="RP_pg2" src="https://github.com/user-attachments/assets/d47466fd-6867-4eeb-98aa-db6b7d00454e" />
- 
-
+<br>
+<br>
 <img width="1312" height="732" alt="RP_pg3" src="https://github.com/user-attachments/assets/e994492c-f91b-4367-85af-24a6db45f0f4" />
- 
-
+<br>
+<br>
 <img width="1455" height="820" alt="RP_pg4" src="https://github.com/user-attachments/assets/e896e3fd-0e3e-41fa-aa09-bb1fd3d773ec" />
- 
-
+<br>
+<br>
 <img width="1312" height="736" alt="RP_pg5" src="https://github.com/user-attachments/assets/0c8da78e-3cc8-4601-a989-620749cf0a41" />
 
