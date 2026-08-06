@@ -40,7 +40,7 @@ A more detailed description of the project phases follows in the Project Details
 <img width="1455" height="820" alt="RP_pg4" src="https://github.com/user-attachments/assets/fba39242-e86a-444b-b8a6-ba7247f9de7b" />
 <br>
 <br>
-<br>
+
 ## 📋 Project Details
 <br>
 <br>
