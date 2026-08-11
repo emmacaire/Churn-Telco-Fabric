@@ -4,11 +4,11 @@
 <br>
 
 ## 📌 Summary
-With this project I developed a realistic Business Intelligence workflow from enterprise data collection to the delivery of a Power BI report and data-driven future prescriptive actions. Data involved customer transactions as contract renewal, new contract or end of contract. In case of churn, additional data on the reason why the customer interrupted the contract was collected.
+With this project I developed a comprehensive Business Intelligence workflow, from enterprise data collection to the delivery of a Power BI report and data-driven future prescriptive actions. Data involved snapshots of customer contract evolution (stayed, joined, churned) and a series of attributes about the demographic profile and product features for each customer. In case of churn, additional data on the reason why the customer interrupted the contract was collected.
 
-Python was used early in the project to manipulate the data and allow for a proper date dimension, other than for quick data cleaning and checks.
-Afterwards the manipulated source data was loaded in Fabric, first in a Staging Area, then in the proper Data Warehouse, after complying with quality checks performed in a pipeline through scripts and stored procedures. There was extensive use of dataflows and pipelines during these stages, other than the SQL scripts to load the final dimensional model.
-Once the clean data was loaded in the warehouse, a Snowflake schema was created in the semantic model and the most relevant insights were presented in a 5-dashboard report. 
+Python was used early in the project to manipulate the data and engineer a proper date dimension, other than for quick data cleaning and checks.
+Afterwards the manipulated source data was loaded into Fabric, first in a Staging Area, then in a proper Data Warehouse, after complying with quality checks performed in a pipeline through scripts and stored procedures. There was extensive use of dataflows and pipelines during these stages, other than the SQL scripts to load the final dimensional model.
+Once the clean data was loaded in the warehouse, a Snowflake schema was created in the semantic model and the most relevant insights were presented in a report consisting of five dashboards. 
 
 A more detailed description of the project phases follows in the Project Details section.
 <br>
