@@ -1,5 +1,5 @@
 # Telco Customer Churn
-**Source Data:** Kaggle [link](https://www.kaggle.com/datasets/nevinfritsch/medical-supply-chain-and-inventory-risk-analysis) / Download [CSV table](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/source/TelcoCustomerChurn.csv)
+**Source Data:** Kaggle [link](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) / Download [CSV table](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/source/TelcoCustomerChurn.csv)
 <br>
 <br>
 
