@@ -22,11 +22,11 @@ A more detailed description of the project phases follows in the Project Details
 | Deliverable | Description | Link |
 | :--- | :--- | :---: |
 | 🌐 **Interactive Dashboard** | View and interact with the live report in Power BI Service | [Launch Report ↗](https://app.fabric.microsoft.com/view?r=eyJrIjoiZmNmMWVhNDktOGYzZS00ZWQwLWJmNDUtNjUwZWE4NjBiMzBkIiwidCI6ImU0YmQ2OWZmLWU2ZjctNGMyZS1iMjQ3LTQxYjU0YmEyNDkwZSIsImMiOjh9) |
-| 📂 **Developer Source Code** | Explore `.pbip` metadata, TMDL model definitions, and DAX logic | [View Code Folder ↗](./report/) |
-| 📄 **Python notebook** | IPYNB notebook for data manipulation | [Download notebook ↗](.notebooks/NB_Telco_Churn_Python_preparation.ipynb) |
-| 📄 **SQL scripts table structures** | SQL scripts for loading the staging area warehouse and data warehouse | [View staging area script ↗](.sql/sql_load_staging_area.sql)<br>[View data warehouse script ↗](.sql/sql_load_data_warehouse.sql) |
-| 📄 **SQL scripts quality checks** | SQL scripts for loading quality checks tables and relative stored procedures | [View quality checks script ↗](.sql/sql_create_log_table_quality_checks.sql)<br>[View procedures script ↗](.sql/sql_stored_procedures_quality_checks.sql) |
-| 📄 **Dataflows** | TXT files with M language in the ETL phase to load dimensions and facts | [View dataflows script ↗](.dataflows/Dataflows_Telco_Churn.txt) |
+| 📂 **Developer Source Code** | Explore `.pbip` metadata, TMDL model definitions, and DAX logic | [View Code Folder ↗](https://github.com/emmacaire/Churn-Telco-Fabric/tree/main/report) |
+| 📄 **Python notebook** | IPYNB notebook for data manipulation | [Download notebook ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/notebooks/NB_Telco_Churn_Python_preparation.ipynb) |
+| 📄 **SQL scripts table structures** | SQL scripts for loading the staging area warehouse and data warehouse | [View staging area script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_load_staging_area.sql)<br>[View data warehouse script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_load_data_warehouse.sql) |
+| 📄 **SQL scripts quality checks** | SQL scripts for loading quality checks tables and relative stored procedures | [View quality checks script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_quality_checks.sql)<br>[View procedures script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_stored_procedures_quality_checks.sql) |
+| 📄 **Dataflows** | TXT files with M language in the ETL phase to load dimensions and facts | [View dataflows script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/dataflows/Dataflows_Telco_Churn.txt) |
 | 📄 **Pipelines** | JSON files with the pipeline commands | [View pipelines script↗](.pipelines) |
 
 
