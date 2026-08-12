@@ -27,7 +27,7 @@ A more detailed description of the project phases follows in the Project Details
 | 📄 **SQL scripts table structures** | SQL scripts for loading the staging area warehouse and data warehouse | [View staging area script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_load_staging_area.sql)<br>[View data warehouse script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_load_data_warehouse.sql) |
 | 📄 **SQL scripts quality checks** | SQL scripts for loading quality checks tables and relative stored procedures | [View quality checks script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_quality_checks.sql)<br>[View procedures script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_stored_procedures_quality_checks.sql) |
 | 📄 **Dataflows** | TXT files with M language in the ETL phase to load dimensions and facts | [View dataflows script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/dataflows/Dataflows_Telco_Churn.txt) |
-| 📄 **Pipelines** | JSON files with the pipeline commands | [View pipelines script↗](.pipelines) |
+| 📄 **Pipelines** | JSON files with the pipeline commands | [View pipelines script↗](https://github.com/emmacaire/Churn-Telco-Fabric/tree/main/pipelines) |
 
 
 ![Dashboard Preview](./assets/dashboard-demo.gif)
