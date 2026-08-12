@@ -1,7 +1,7 @@
 # Telco Customer Churn & Retention Analytics
 > **An end-to-end Microsoft Fabric & Power BI analytics solution designed to identify high-risk customer segments, quantify revenue loss, and drive proactive retention strategies.**
 
-[![Live Report](https://img.shields.io/badge/Power_BI-Live_Dashboard-F2C94C?logo=powerbi&logoColor=black)](https://app.fabric.microsoft.com/view?r=eyJrIjoiMDg4YmUzZTYtYjEzMy00MTcxLWFiYmMtOTk0OGU1MzU5MmNmIiwidCI6ImU0YmQ2OWZmLWU2ZjctNGMyZS1iMjQ3LTQxYjU0YmEyNDkwZSIsImMiOjh9)
+[![Live Report](https://img.shields.io/badge/Power_BI-Live_Dashboard-F2C94C?logo=powerbi&logoColor=black)](https://app.fabric.microsoft.com/view?r=eyJrIjoiZmNmMWVhNDktOGYzZS00ZWQwLWJmNDUtNjUwZWE4NjBiMzBkIiwidCI6ImU0YmQ2OWZmLWU2ZjctNGMyZS1iMjQ3LTQxYjU0YmEyNDkwZSIsImMiOjh9)
 [![Source Data](https://img.shields.io/badge/Data_Source-Kaggle-blue?logo=kaggle)](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
 [![Source Data CSV](https://img.shields.io/badge/Data_Source-CSV-green?logo=kaggle)](./source/TelcoCustomerChurn.csv)
 <br>
