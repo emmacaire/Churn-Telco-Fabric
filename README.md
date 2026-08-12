@@ -1,7 +1,7 @@
 # Telco Customer Churn & Retention Analytics
 > **An end-to-end Microsoft Fabric & Power BI analytics solution designed to identify high-risk customer segments, quantify revenue loss, and drive proactive retention strategies.**
 
-[![Live Report](https://img.shields.io/badge/Power_BI-Live_Dashboard-F2C94C?logo=powerbi&logoColor=black)](https://app.fabric.microsoft.com/view?r=eyJrIjoiZmNmMWVhNDktOGYzZS00ZWQwLWJmNDUtNjUwZWE4NjBiMzBkIiwidCI6ImU0YmQ2OWZmLWU2ZjctNGMyZS1iMjQ3LTQxYjU0YmEyNDkwZSIsImMiOjh9)
+[![Live Report](https://img.shields.io/badge/Power_BI-Live_Dashboard-F2C94C?logo=powerbi&logoColor=black)](https://app.fabric.microsoft.com/view?r=eyJrIjoiMDg4YmUzZTYtYjEzMy00MTcxLWFiYmMtOTk0OGU1MzU5MmNmIiwidCI6ImU0YmQ2OWZmLWU2ZjctNGMyZS1iMjQ3LTQxYjU0YmEyNDkwZSIsImMiOjh9)
 [![Source Data](https://img.shields.io/badge/Data_Source-Kaggle-blue?logo=kaggle)](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
 [![Source Data CSV](https://img.shields.io/badge/Data_Source-CSV-green?logo=kaggle)](./source/TelcoCustomerChurn.csv)
 <br>
@@ -21,7 +21,7 @@ A more detailed description of the project phases follows in the Project Details
 
 | Deliverable | Description | Link |
 | :--- | :--- | :---: |
-| 🌐 **Interactive Dashboard** | View and interact with the live report in Power BI Service | [Launch Report ↗](https://app.fabric.microsoft.com/view?r=eyJrIjoiZmNmMWVhNDktOGYzZS00ZWQwLWJmNDUtNjUwZWE4NjBiMzBkIiwidCI6ImU0YmQ2OWZmLWU2ZjctNGMyZS1iMjQ3LTQxYjU0YmEyNDkwZSIsImMiOjh9) |
+| 🌐 **Interactive Dashboard** | View and interact with the live report in Power BI Service | [Launch Report ↗](https://app.fabric.microsoft.com/view?r=eyJrIjoiMDg4YmUzZTYtYjEzMy00MTcxLWFiYmMtOTk0OGU1MzU5MmNmIiwidCI6ImU0YmQ2OWZmLWU2ZjctNGMyZS1iMjQ3LTQxYjU0YmEyNDkwZSIsImMiOjh9) |
 | 📂 **Developer Source Code** | Explore `.pbip` metadata, TMDL model definitions, and DAX logic | [View Code Folder ↗](https://github.com/emmacaire/Churn-Telco-Fabric/tree/main/report) |
 | 📄 **Python notebook** | IPYNB notebook for data manipulation | [Download notebook ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/notebooks/NB_Telco_Churn_Python_preparation.ipynb) |
 | 📄 **SQL scripts table structures** | SQL scripts for loading the staging area warehouse and data warehouse | [View staging area script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_load_staging_area.sql)<br>[View data warehouse script ↗](https://github.com/emmacaire/Churn-Telco-Fabric/blob/main/sql/sql_load_data_warehouse.sql) |
