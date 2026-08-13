@@ -3,7 +3,7 @@
 
 [![Live Report](https://img.shields.io/badge/Power_BI-Live_Dashboard-F2C94C?logo=powerbi&logoColor=black)](https://app.fabric.microsoft.com/view?r=eyJrIjoiZmNmMWVhNDktOGYzZS00ZWQwLWJmNDUtNjUwZWE4NjBiMzBkIiwidCI6ImU0YmQ2OWZmLWU2ZjctNGMyZS1iMjQ3LTQxYjU0YmEyNDkwZSIsImMiOjh9)
 [![Source Data](https://img.shields.io/badge/Data_Source-Kaggle-blue?logo=kaggle)](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
-[![Source Data CSV](https://img.shields.io/badge/Data_Source-CSV-green?logo=kaggle)](./source/TelcoCustomerChurn.csv)
+[![Source Data CSV](https://img.shields.io/badge/Data_Source-CSV-green?)](./source/TelcoCustomerChurn.csv)
 <br>
 
 ## 📌 Summary
