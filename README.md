@@ -1,5 +1,5 @@
 # Telco Customer Churn & Retention Analytics
-> **An end-to-end Microsoft Fabric & Power BI analytics solution designed to identify high-risk customer segments, quantify revenue loss, and drive proactive retention strategies.**
+> **A full Business Intelligence project including Python data manipulation, ETL pipelines and dataflows in Fabric, Snowflake relational model and an executive dashboard focusing on customer churn over a one-year business cycle. It is designed to identify high-risk customer segments, quantify revenue loss, and drive proactive retention strategies.**
 
 [![Live Report](https://img.shields.io/badge/Power_BI-Live_Dashboard-F2C94C?logo=powerbi&logoColor=black)](https://app.fabric.microsoft.com/view?r=eyJrIjoiZmNmMWVhNDktOGYzZS00ZWQwLWJmNDUtNjUwZWE4NjBiMzBkIiwidCI6ImU0YmQ2OWZmLWU2ZjctNGMyZS1iMjQ3LTQxYjU0YmEyNDkwZSIsImMiOjh9)
 [![Source Data](https://img.shields.io/badge/Data_Source-Kaggle-blue?logo=kaggle)](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
@@ -7,12 +7,13 @@
 <br>
 
 ## 📌 Summary
-With this project I developed a comprehensive Business Intelligence workflow, from enterprise data collection to the delivery of a Power BI report and data-driven future prescriptive actions. Data involved snapshots of customer contract evolution (stayed, joined, churned) and a series of attributes about the demographic profile and product features for each customer. In case of churn, additional data on the reason why the customer interrupted the contract was collected.
+With this project I develop a comprehensive Business Intelligence workflow, from enterprise data collection to the delivery of a Power BI report and data-driven future prescriptive actions. Data involves snapshots of customer contract evolution (stayed, joined, churned) and a series of attributes about the demographic profile and product features for each customer. In case of churn, additional data on the reason why the customer interrupted the contract is collected.
 
-Python was used early in the project to manipulate the data and engineer a proper date dimension, other than for quick data cleaning and checks.
-Afterwards the manipulated source data was loaded into Fabric, first in a Staging Area, then in a proper Data Warehouse, after complying with quality checks performed in a pipeline through scripts and stored procedures. There was extensive use of dataflows and pipelines during these stages, other than the SQL scripts to load the final dimensional model.
-Once the clean data was loaded in the warehouse, a Snowflake schema was created in the semantic model and the most relevant insights were presented in a report consisting of five dashboards. 
+Python is used early in the project to manipulate the data and engineer a proper date dimension, other than for quick data cleaning and checks.
+Afterwards the manipulated source data is loaded into Fabric, first in a Staging Area, then in a proper Data Warehouse, after complying with quality checks performed in a pipeline through scripts and stored procedures. During these stages I do extensive use of dataflows, pipelines, and SQL scripts to load the final dimensional model.
+Once the clean data is loaded in the warehouse, I create a Snowflake schema in the semantic model and present the most relevant insights in a 5-dashboard report. 
 
+The main reason why customers are churning seems to be related to better alternatives by the competitors, both in terms of pricing and product services. These customers seem to be particularly sensitive to pricing and have more time to compare different offers than those who stay. The high churn rate (30%) of the past year requires immediate action, especially in areas such as San Diego, while Fresno can be considered as one of the virtuous examples that should be taken as a benchmark. 
 A more detailed description of the project phases follows in the Project Details section.
 <br>
 <br>
