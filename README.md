@@ -16,7 +16,11 @@ Python is used early in the project to manipulate the data and engineer a proper
 Afterwards the manipulated source data is loaded into Fabric, first in a Staging Area, then in a proper Data Warehouse, after complying with quality checks performed in a pipeline through scripts and stored procedures. During these stages I do extensive use of dataflows, pipelines, and SQL scripts to load the final dimensional model.
 Once the clean data is loaded in the warehouse, I create a Snowflake schema in the semantic model and present the most relevant insights in a 5-dashboard report. 
 
-The key takeaways of the analysis are the following. The main reason why customers are churning seems to be related to better alternatives by the competitors, both in terms of pricing and product services. These customers seem to be particularly sensitive to pricing and have more time to compare different offers than those who stay. The most affected area seems to be San Diego, where high charges even among relatively new customers have resulted in massive churn rates, while Fresno can be considered as one of the virtuous examples that should be taken as a benchmark, being able to retain a higher proportion of customers still maintaining relatively profitable prices. Some services such as premium support and unlimited data need to be reviewed, as they might contribute to the mismatch between customer demand and the company's offered products.
+The key takeaways of the analysis are the following:
+ 1. The main reason why customers are churning seems to be related to better alternatives by the competitors, both in terms of pricing and product services. These customers seem to be particularly sensitive to pricing and have more time to compare different offers than those who stay.
+ 2. The most affected area seems to be San Diego, where high charges even among relatively new customers have resulted in massive churn rates, while Fresno can be considered as one of the virtuous examples that should be taken as a benchmark, being able to retain a higher proportion of customers still maintaining relatively profitable prices.
+ 3. Some services such as premium support and unlimited data need to be reviewed, as they might contribute to the mismatch between customer demand and the company's offered products.
+
 A more detailed description of the project phases follows in the Project Details section.
 <br>
 <br>
