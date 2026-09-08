@@ -48,10 +48,10 @@ A more detailed description of the project phases follows in the Project Details
 
 * **Visualization tools:**  bar charts, donut charts, decomposition trees, multi-level cards, KPIs, slicers, interactive maps, scatter plots, navigation buttons, custom tooltips.
 <br>
-<img width="1452" height="816" alt="RP_pg1" src="https://github.com/user-attachments/assets/90af4680-2dc9-45d0-8d8d-7e967279232a" />
+<img width="1452" height="816" alt="RP_pg1" src="https://github.com/user-attachments/assets/cd16f353-e5d3-4130-9327-e4c4fe73180e" />
 <br>
 <br>
-<img width="1455" height="820" alt="RP_pg4" src="https://github.com/user-attachments/assets/fba39242-e86a-444b-b8a6-ba7247f9de7b" />
+<img width="1455" height="820" alt="RP_pg4" src="https://github.com/user-attachments/assets/eedb88db-d34a-4374-9206-d4b867ff7421" />
 <br>
 <br>
 
@@ -184,35 +184,35 @@ Brief description of the dashboards:
 **1. Churn Overview**: a list of KPI on churned and joined customers and a summary of the main reasons indicated by customers when asked why they decided to cancel their contract, in order to immediately capture the general situation.
 <br>
 <br>
-<img width="1452" height="816" alt="RP_pg1" src="https://github.com/user-attachments/assets/6ee70fec-c04c-4c7b-b2de-62c74e736246" />
+<img width="1452" height="816" alt="RP_pg1" src="https://github.com/user-attachments/assets/52b6814c-a46d-439a-81af-46cea1f4dcae" />
 <br>
 <br>
 
 **2. Demographic comparison**: a comparison of key metrics and demographic attributes between customers who stayed and those who churned, to understand which ones present significant differences between the two sub-groups and which not.
 <br>
 <br>
-<img width="1312" height="737" alt="RP_pg2" src="https://github.com/user-attachments/assets/d47466fd-6867-4eeb-98aa-db6b7d00454e" />
+<img width="1312" height="737" alt="RP_pg2" src="https://github.com/user-attachments/assets/c9ede277-534f-4dc9-9bc1-8477dd84e5bd" />
 <br>
 <br>
 
 **3. Product comparison**: an extension of previous analysis but focusing on product characteristics rather than customer profile, to capture the different products that customers were using when deciding to opt out or renew.
 <br>
 <br>
-<img width="1312" height="732" alt="RP_pg3" src="https://github.com/user-attachments/assets/e994492c-f91b-4367-85af-24a6db45f0f4" />
+<img width="1312" height="732" alt="RP_pg3" src="https://github.com/user-attachments/assets/71191f90-8381-4c83-bcb7-e5929536a473" />
 <br>
 <br>
 
 **4. Churn Map**: a dashboard capturing all relevant geographical differences, with two charts focusing on main cities and a full map where the slicer can filter by the reason for churning, and the data points are further labeled by length of tenure in months (color of the dot) and monthly charge (size of the dot).
 <br>
 <br>
-<img width="1455" height="820" alt="RP_pg4" src="https://github.com/user-attachments/assets/e896e3fd-0e3e-41fa-aa09-bb1fd3d773ec" />
+<img width="1455" height="820" alt="RP_pg4" src="https://github.com/user-attachments/assets/a01bc757-f2ce-4e9a-8c3f-fa103b652e00" />
 <br>
 <br>
 
 **5. Time Series:** it displays the most interesting month-over-month evolution in % compared to previous month, and two further stacked bar charts that cross check motivation for churning by month, and churn in large cities by quarter, capturing significant differences.
 <br>
 <br>
-<img width="1312" height="736" alt="RP_pg5" src="https://github.com/user-attachments/assets/0c8da78e-3cc8-4601-a989-620749cf0a41" />
+<img width="1312" height="736" alt="RP_pg5" src="https://github.com/user-attachments/assets/1fea81aa-c049-408d-8ce2-11da3a78497c" />
 <br>
 <br>
 
