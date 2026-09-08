@@ -109,13 +109,13 @@ Dataflows commands include selecting the appropriate columns, generating new col
 Once all the dataflows are ready I create a pipeline that will load all the data from the in a Staging Area warehouse, where some quality checks will be performed before loading into the final data warehouse.
 <br>
 <br>
-<img width="1566" height="335" alt="PL_load_staging_area" src="https://github.com/user-attachments/assets/67ac9cd7-9145-4ed6-96ac-e5e11d178da3" />
+<img width="1566" height="335" alt="PL_load_staging_area" src="https://github.com/user-attachments/assets/39541fc0-4b8a-4dbd-ba8d-710e63a3061c" />
 <br>
 <br>
 Another pipeline is created to perform quality checks including the integrity of the business key, the uniqueness of dimension attributes, no negative values in the charge column, and the prensence of the parent key for each child table referencing other foreign keys. Those checks are done through direct [scripts](./sql/sql_quality_checks.sql) in the pipeline or through [stored procedures](./sql/sql_stored_procedures_quality_checks.sql). 
 <br>
 <br>
-<img width="587" height="542" alt="PL_log_quality_checks" src="https://github.com/user-attachments/assets/5d16bdd1-6deb-4862-b070-c023454d67e4" />
+<img width="587" height="542" alt="PL_log_quality_checks" src="https://github.com/user-attachments/assets/264bd098-0bea-4273-b440-49cbfcaf20af" />
 <br>
 <br>
 The results, after the pipeline is run, are visible in the quality checks table in the staging area warehouse.
@@ -134,7 +134,7 @@ After having checked the data in the staging area, I can finally transfer my tab
 With another pipeline, I can now fill the Data Warehouse with the filtered and cleaned data from the Staging Area data warehouse. The key focus in the pipeline is on ensuring that each dimension table is loaded with an additional progressive surrogate key, other than the business key. It's the surrogate key that will reference the dimension as a foreign key in the fact table, instead of the business key.
 <br>
 <br>
-<img width="1497" height="411" alt="PL_load_data_warehouse" src="https://github.com/user-attachments/assets/44d6f33e-538b-46a2-bab9-1ac70d353b47" />
+<img width="1497" height="411" alt="PL_load_data_warehouse" src="https://github.com/user-attachments/assets/17065c7a-45a1-4227-8054-5cd809e4b243" />
 <br>
 <br>
 
